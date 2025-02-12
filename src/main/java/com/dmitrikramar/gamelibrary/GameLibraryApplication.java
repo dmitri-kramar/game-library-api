@@ -3,7 +3,7 @@ package com.dmitrikramar.gamelibrary;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-/*Main class for starting the Spring Boot application.*/
+// Main class for starting the Spring Boot application.
 
 @SpringBootApplication
 public class GameLibraryApplication {
