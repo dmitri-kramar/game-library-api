@@ -1,0 +1,15 @@
+# Ignore build files
+/target/
+/out/
+
+# Ignore IntelliJ IDEA settings
+/.idea/
+/*.iml
+
+# Ignore Maven dependencies
+/.mvn/
+/.mvn/wrapper/maven-wrapper.jar
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
