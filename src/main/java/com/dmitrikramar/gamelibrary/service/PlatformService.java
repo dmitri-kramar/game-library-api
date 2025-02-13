@@ -31,4 +31,8 @@ public class PlatformService {
     public void deleteById(Long id) {
         platformRepository.deleteById(id);
     }
+
+    public boolean existsById(Long id) {
+        return platformRepository.existsById(id);
+    }
 }

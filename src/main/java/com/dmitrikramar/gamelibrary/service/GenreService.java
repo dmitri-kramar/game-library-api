@@ -31,4 +31,8 @@ public class GenreService {
     public void deleteById(Long id) {
         genreRepository.deleteById(id);
     }
+
+    public boolean existsById(Long id) {
+        return genreRepository.existsById(id);
+    }
 }
