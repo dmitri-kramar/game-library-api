@@ -31,4 +31,8 @@ public class DeveloperService {
     public void deleteById(Long id) {
         developerRepository.deleteById(id);
     }
+
+    public boolean existsById(Long id) {
+        return developerRepository.existsById(id);
+    }
 }

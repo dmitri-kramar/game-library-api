@@ -31,4 +31,8 @@ public class ReviewService {
     public void deleteById(Long id) {
         reviewRepository.deleteById(id);
     }
+
+    public boolean existsById(Long id) {
+        return reviewRepository.existsById(id);
+    }
 }
