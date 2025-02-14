@@ -41,8 +41,8 @@ public class PlatformController {
     public ResponseEntity<Platform> updatePlatform(@PathVariable Long id, @RequestBody Platform platform) {
         return platformService.getById(id)
                 .map(existingPlatform -> {
-                    platform.setId(id);
-                    Platform updatedPlatform = platformService.save(platform);
+                    existingPlatform.setName(platform.getName());
+                    Platform updatedPlatform = platformService.save(existingPlatform);
                     return ResponseEntity.ok(updatedPlatform);
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());

@@ -17,7 +17,6 @@ public class Developer {
     private Long id;
 
     private String name;
-
     private String country;
 
     @OneToMany(mappedBy = "developer")
