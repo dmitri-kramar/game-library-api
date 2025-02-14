@@ -41,8 +41,8 @@ public class GenreController {
     public ResponseEntity<Genre> updateGenre(@PathVariable Long id, @RequestBody Genre genre) {
         return genreService.getById(id)
                 .map(existingGenre -> {
-                    genre.setId(id);
-                    Genre updatedGenre = genreService.save(genre);
+                    existingGenre.setName(genre.getName());
+                    Genre updatedGenre = genreService.save(existingGenre);
                     return ResponseEntity.ok(updatedGenre);
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());

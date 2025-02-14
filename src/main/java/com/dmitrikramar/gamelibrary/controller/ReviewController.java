@@ -41,8 +41,9 @@ public class ReviewController {
     public ResponseEntity<Review> updateReview(@PathVariable Long id, @RequestBody Review review) {
         return reviewService.getById(id)
                 .map(existingReview -> {
-                    review.setId(id);
-                    Review updatedReview = reviewService.save(review);
+                    existingReview.setRating(review.getRating());
+                    existingReview.setComment(review.getComment());
+                    Review updatedReview = reviewService.save(existingReview);
                     return ResponseEntity.ok(updatedReview);
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());

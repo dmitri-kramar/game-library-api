@@ -41,8 +41,13 @@ public class GameController {
     public ResponseEntity<Game> updateGame(@PathVariable Long id, @RequestBody Game game) {
         return gameService.getById(id)
                 .map(existingGame -> {
-                    game.setId(id);
-                    Game updatedGame = gameService.save(game);
+                    existingGame.setTitle(game.getTitle());
+                    existingGame.setDescription(game.getDescription());
+                    existingGame.setReleaseDate(game.getReleaseDate());
+                    existingGame.setDeveloper(game.getDeveloper());
+                    existingGame.setPlatforms(game.getPlatforms());
+                    existingGame.setGenres(game.getGenres());
+                    Game updatedGame = gameService.save(existingGame);
                     return ResponseEntity.ok(updatedGame);
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());

@@ -41,8 +41,9 @@ public class DeveloperController {
     public ResponseEntity<Developer> updateDeveloper(@PathVariable Long id, @RequestBody Developer developer) {
         return developerService.getById(id)
                 .map(existingDeveloper -> {
-                    developer.setId(id);
-                    Developer updatedDeveloper = developerService.save(developer);
+                    existingDeveloper.setName(developer.getName());
+                    existingDeveloper.setCountry(developer.getCountry());
+                    Developer updatedDeveloper = developerService.save(existingDeveloper);
                     return ResponseEntity.ok(updatedDeveloper);
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
