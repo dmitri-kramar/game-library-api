@@ -16,8 +16,8 @@ public class Developer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private String name;
-    private String country;
 
     @OneToMany(mappedBy = "developer")
     private Set<Game> games;

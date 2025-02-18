@@ -17,31 +17,32 @@ public class Game {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String title;
+
+    @Column(nullable = false)
     private LocalDate releaseDate;
-    private Double rating;
+
+    @Column(nullable = false)
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "developer_id")
+    @JoinColumn(name = "developer_id", nullable = false)
     private Developer developer;
 
     @ManyToMany
     @JoinTable(
             name = "game_platform",
-            joinColumns = @JoinColumn(name = "game_id"),
-            inverseJoinColumns = @JoinColumn (name = "platform_id")
+            joinColumns = @JoinColumn(name = "game_id", nullable = false),
+            inverseJoinColumns = @JoinColumn (name = "platform_id", nullable = false)
     )
     private Set<Platform> platforms;
 
     @ManyToMany
     @JoinTable(
             name = "game_genre",
-            joinColumns = @JoinColumn(name = "game_id"),
-            inverseJoinColumns = @JoinColumn(name = "genre_id")
+            joinColumns = @JoinColumn(name = "game_id", nullable = false),
+            inverseJoinColumns = @JoinColumn(name = "genre_id", nullable = false)
     )
     private Set<Genre> genres;
-
-    @OneToMany(mappedBy = "game")
-    private Set<Review> reviews;
 }

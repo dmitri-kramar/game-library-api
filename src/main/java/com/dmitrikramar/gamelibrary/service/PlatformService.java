@@ -4,9 +4,10 @@ import com.dmitrikramar.gamelibrary.entity.Platform;
 import com.dmitrikramar.gamelibrary.repository.PlatformRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 
 // Service layer for managing platforms. Provides basic CRUD operations.
 
@@ -20,19 +21,18 @@ public class PlatformService {
         return platformRepository.findAll();
     }
 
-    public Optional<Platform> getById(Long id) {
-        return platformRepository.findById(id);
+    public Platform getById(Long id) {
+        return platformRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Platform not found"));
     }
 
+    @Transactional
     public Platform save(Platform platform) {
         return platformRepository.save(platform);
     }
 
+    @Transactional
     public void deleteById(Long id) {
-        platformRepository.deleteById(id);
-    }
-
-    public boolean existsById(Long id) {
-        return platformRepository.existsById(id);
+        platformRepository.delete(getById(id));
     }
 }

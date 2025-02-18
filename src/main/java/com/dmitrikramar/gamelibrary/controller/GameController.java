@@ -5,6 +5,7 @@ import com.dmitrikramar.gamelibrary.service.GameService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,45 +21,39 @@ public class GameController {
 
     @GetMapping
     public ResponseEntity<List<Game>> getAllGames() {
-        List<Game> games = gameService.getAll();
-        return ResponseEntity.ok(games);
+        return ResponseEntity.ok(gameService.getAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Game> getGameById(@PathVariable Long id) {
-        return gameService.getById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Game> getGame(@PathVariable Long id) {
+        return ResponseEntity.ok(gameService.getById(id));
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Game> createGame(@RequestBody Game game) {
         Game savedGame = gameService.save(game);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedGame);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Game> updateGame(@PathVariable Long id, @RequestBody Game game) {
-        return gameService.getById(id)
-                .map(existingGame -> {
-                    existingGame.setTitle(game.getTitle());
-                    existingGame.setDescription(game.getDescription());
-                    existingGame.setReleaseDate(game.getReleaseDate());
-                    existingGame.setDeveloper(game.getDeveloper());
-                    existingGame.setPlatforms(game.getPlatforms());
-                    existingGame.setGenres(game.getGenres());
-                    Game updatedGame = gameService.save(existingGame);
-                    return ResponseEntity.ok(updatedGame);
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        Game existingGame = gameService.getById(id);
+        existingGame.setTitle(game.getTitle());
+        existingGame.setDescription(game.getDescription());
+        existingGame.setReleaseDate(game.getReleaseDate());
+        existingGame.setDeveloper(game.getDeveloper());
+        existingGame.setPlatforms(game.getPlatforms());
+        existingGame.setGenres(game.getGenres());
+        Game updatedGame = gameService.save(existingGame);
+        return ResponseEntity.ok(updatedGame);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteGame(@PathVariable Long id) {
-        if (gameService.existsById(id)) {
-            gameService.deleteById(id);
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+        gameService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

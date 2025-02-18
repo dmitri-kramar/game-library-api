@@ -17,8 +17,9 @@ public class Role {
     private Long id;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private RoleName name;
 
-    @ManyToMany(mappedBy = "roles")
+    @OneToMany(mappedBy = "role")
     private Set<User> users;
 }

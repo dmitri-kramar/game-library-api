@@ -4,9 +4,10 @@ import com.dmitrikramar.gamelibrary.entity.Game;
 import com.dmitrikramar.gamelibrary.repository.GameRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 
 // Service layer for managing games. Provides basic CRUD operations.
 
@@ -20,23 +21,18 @@ public class GameService {
         return gameRepository.findAll();
     }
 
-    public Optional<Game> getById(Long id) {
-        return gameRepository.findById(id);
+    public Game getById(Long id) {
+        return gameRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Game not found"));
     }
 
-    public List<Game> getByTitle(String title) {
-        return gameRepository.findByTitle(title);
-    }
-
+    @Transactional
     public Game save(Game game) {
         return gameRepository.save(game);
     }
 
+    @Transactional
     public void deleteById(Long id) {
-        gameRepository.deleteById(id);
-    }
-
-    public boolean existsById(Long id) {
-        return gameRepository.existsById(id);
+        gameRepository.delete(getById(id));
     }
 }

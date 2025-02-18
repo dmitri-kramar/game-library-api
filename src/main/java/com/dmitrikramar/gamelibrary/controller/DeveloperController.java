@@ -5,6 +5,7 @@ import com.dmitrikramar.gamelibrary.service.DeveloperService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,41 +21,34 @@ public class DeveloperController {
 
     @GetMapping
     public ResponseEntity<List<Developer>> getAllDevelopers() {
-        List<Developer> developers = developerService.getAll();
-        return ResponseEntity.ok(developers);
+        return ResponseEntity.ok(developerService.getAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Developer> getDeveloperById(@PathVariable Long id) {
-        return developerService.getById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Developer> getDeveloper(@PathVariable Long id) {
+        return ResponseEntity.ok(developerService.getById(id));
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Developer> createDeveloper(@RequestBody Developer developer) {
         Developer savedDeveloper = developerService.save(developer);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedDeveloper);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Developer> updateDeveloper(@PathVariable Long id, @RequestBody Developer developer) {
-        return developerService.getById(id)
-                .map(existingDeveloper -> {
-                    existingDeveloper.setName(developer.getName());
-                    existingDeveloper.setCountry(developer.getCountry());
-                    Developer updatedDeveloper = developerService.save(existingDeveloper);
-                    return ResponseEntity.ok(updatedDeveloper);
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        Developer existingDeveloper = developerService.getById(id);
+        existingDeveloper.setName(developer.getName());
+        Developer savedDeveloper = developerService.save(existingDeveloper);
+        return ResponseEntity.ok(savedDeveloper);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteDeveloper(@PathVariable Long id) {
-        if (developerService.existsById(id)) {
-            developerService.deleteById(id);
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+        developerService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

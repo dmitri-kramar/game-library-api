@@ -1,10 +1,13 @@
 package com.dmitrikramar.gamelibrary.controller;
 
+import com.dmitrikramar.gamelibrary.dto.PasswordDTO;
+import com.dmitrikramar.gamelibrary.dto.UserResponseDTO;
 import com.dmitrikramar.gamelibrary.entity.User;
 import com.dmitrikramar.gamelibrary.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,58 +22,31 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
         List<User> users = userService.getAll();
-        return ResponseEntity.ok(users);
+        List<UserResponseDTO> response = users.stream()
+                .map(UserResponseDTO::fromUser)
+                .toList();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        return userService.getById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/{username}")
-    public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
-        return userService.getByUsername(username)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        User savedUser = userService.save(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+    public ResponseEntity<UserResponseDTO> getUser(@PathVariable Long id) {
+        return ResponseEntity.ok(UserResponseDTO.fromUser(userService.getById(id)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
-        return userService.getById(id)
-                .map(existingUser -> {
-                    existingUser.setUsername(user.getUsername());
-                    existingUser.setPassword(user.getPassword());
-                    User updatedUser = userService.save(existingUser);
-                    return ResponseEntity.ok(updatedUser);
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @DeleteMapping("/{username}")
-    public ResponseEntity<Void> deleteUserByUsername(@PathVariable String username) {
-        if (userService.existsByUsername(username)) {
-            userService.deleteByUsername(username);
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+    @PreAuthorize("@userSecurityService.hasAccess(#id)")
+    public ResponseEntity<?> updatePassword(@PathVariable Long id, @Valid @RequestBody PasswordDTO dto) {
+        User updatedUser = userService.updatePassword(id, dto);
+        return ResponseEntity.ok(UserResponseDTO.fromUser(updatedUser));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUserById(@PathVariable Long id) {
-        if (userService.existsById(id)) {
-            userService.deleteById(id);
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+    @PreAuthorize("hasRole('ADMIN') or @userSecurityService.hasAccess(#id)")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        userService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }
