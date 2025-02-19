@@ -18,11 +18,11 @@ public class GenreService {
     private final GenreRepository genreRepository;
 
     public List<Genre> getAll() {
-        return genreRepository.findAll();
+        return genreRepository.findAllWithRelations();
     }
 
     public Genre getById(Long id) {
-        return genreRepository.findById(id)
+        return genreRepository.findByIdWithRelations(id)
                 .orElseThrow(() -> new NoSuchElementException("Genre not found"));
     }
 

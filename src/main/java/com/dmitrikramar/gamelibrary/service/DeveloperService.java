@@ -18,11 +18,11 @@ public class DeveloperService {
     private final DeveloperRepository developerRepository;
 
     public List<Developer> getAll() {
-        return developerRepository.findAll();
+        return developerRepository.findAllWithRelations();
     }
 
     public Developer getById(Long id) {
-        return developerRepository.findById(id)
+        return developerRepository.findByIdWithRelations(id)
                 .orElseThrow(() -> new NoSuchElementException("Developer not found"));
     }
 

@@ -1,9 +1,11 @@
 package com.dmitrikramar.gamelibrary.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Set;
 
 // Game entity represents a video game with details like title, release date, rating, and description.
@@ -28,6 +30,7 @@ public class Game {
 
     @ManyToOne
     @JoinColumn(name = "developer_id", nullable = false)
+    @JsonIgnoreProperties("games")
     private Developer developer;
 
     @ManyToMany
@@ -36,6 +39,7 @@ public class Game {
             joinColumns = @JoinColumn(name = "game_id", nullable = false),
             inverseJoinColumns = @JoinColumn (name = "platform_id", nullable = false)
     )
+    @JsonIgnoreProperties("games")
     private Set<Platform> platforms;
 
     @ManyToMany
@@ -44,5 +48,19 @@ public class Game {
             joinColumns = @JoinColumn(name = "game_id", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "genre_id", nullable = false)
     )
+    @JsonIgnoreProperties("games")
     private Set<Genre> genres;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Game game = (Game) o;
+        return Objects.equals(id, game.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

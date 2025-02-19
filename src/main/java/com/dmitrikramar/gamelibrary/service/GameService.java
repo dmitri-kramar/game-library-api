@@ -18,11 +18,11 @@ public class GameService {
     private final GameRepository gameRepository;
 
     public List<Game> getAll() {
-        return gameRepository.findAll();
+        return gameRepository.findAllWithRelations();
     }
 
     public Game getById(Long id) {
-        return gameRepository.findById(id)
+        return gameRepository.findByIdWithRelations(id)
                 .orElseThrow(() -> new NoSuchElementException("Game not found"));
     }
 

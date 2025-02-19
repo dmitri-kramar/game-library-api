@@ -1,5 +1,6 @@
 package com.dmitrikramar.gamelibrary.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -20,5 +21,6 @@ public class Developer {
     private String name;
 
     @OneToMany(mappedBy = "developer")
+    @JsonIgnoreProperties({"developer", "platforms", "genres", "releaseDate", "description"})
     private Set<Game> games;
 }

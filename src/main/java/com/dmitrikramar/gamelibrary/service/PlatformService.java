@@ -18,11 +18,11 @@ public class PlatformService {
     private final PlatformRepository platformRepository;
 
     public List<Platform> getAll() {
-        return platformRepository.findAll();
+        return platformRepository.findAllWithRelations();
     }
 
     public Platform getById(Long id) {
-        return platformRepository.findById(id)
+        return platformRepository.findByIdWithRelations(id)
                 .orElseThrow(() -> new NoSuchElementException("Platform not found"));
     }
 
