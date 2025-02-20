@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 import java.util.Objects;
 import java.util.Set;
 
-// Genre entity represents a category or type of game, such as RPG, Shooter, or Strategy.
-// A genre can be associated with multiple games.
+// Entity representing a genre, which can have multiple games associated with it.
 
 @Entity
 @Data

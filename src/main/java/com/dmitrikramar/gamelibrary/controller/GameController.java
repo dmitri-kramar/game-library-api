@@ -20,16 +20,19 @@ public class GameController {
 
     private final GameService gameService;
 
+    // Endpoint to get all games, accessible to authenticated users
     @GetMapping
     public ResponseEntity<List<Game>> getAllGames() {
         return ResponseEntity.ok(gameService.getAll());
     }
 
+    // Endpoint to get a game by ID, accessible to authenticated users
     @GetMapping("/{id}")
     public ResponseEntity<Game> getGame(@PathVariable Long id) {
         return ResponseEntity.ok(gameService.getById(id));
     }
 
+    // Endpoint to create a new game, accessible only by ADMIN role
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Game> createGame(@RequestBody Game game) {
@@ -37,6 +40,7 @@ public class GameController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedGame);
     }
 
+    // Endpoint to create a new game, accessible only by ADMIN role
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
@@ -52,6 +56,7 @@ public class GameController {
         return ResponseEntity.ok(updatedGame);
     }
 
+    // Endpoint to delete a game by ID, accessible only by ADMIN role
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteGame(@PathVariable Long id) {

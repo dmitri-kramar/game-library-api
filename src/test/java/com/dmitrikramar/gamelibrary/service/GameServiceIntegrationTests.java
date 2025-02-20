@@ -47,6 +47,7 @@ class GameServiceIntegrationTests {
 
     @BeforeEach
     void setUp() {
+        // Creates and saves test developer, platform, and genre before each test
         Developer testDeveloper = new Developer("TestDeveloper", null);
         Platform testPlatform = new Platform("TestPlatform", null);
         Genre testGenre = new Genre("TestGenre", null);
@@ -55,6 +56,7 @@ class GameServiceIntegrationTests {
         platformRepository.save(testPlatform);
         genreRepository.save(testGenre);
 
+        // Creates and saves a test game
         testGame = new Game("Test Game", LocalDate.parse("2000-01-01"), "Description",
                 testDeveloper, new HashSet<>(Set.of(testPlatform)), new HashSet<>(Set.of(testGenre)));
 
@@ -63,6 +65,7 @@ class GameServiceIntegrationTests {
 
     @Test
     void getAll() {
+        // Verifies that the service returns all games, including the test game
         List<Game> games = gameService.getAll();
         assertThat(games).isNotEmpty();
         assertThat(games).contains(testGame);
@@ -70,18 +73,21 @@ class GameServiceIntegrationTests {
 
     @Test
     void getById() {
+        // Verifies that the service retrieves the correct game by ID
         Game game = gameService.getById(testGame.getId());
         assertThat(game).isEqualTo(testGame);
     }
 
     @Test
     void getById_ShouldThrowException_WhenGameNotFound() {
+        // Verifies that an exception is thrown when the game with the provided ID doesn't exist
         Long nonExistentId = 999L;
         assertThrows(NoSuchElementException.class, () -> gameService.getById(nonExistentId));
     }
 
     @Test
     void save() {
+        // Verifies that the game is saved correctly and has an ID
         Game savedGame = gameService.save(testGame);
         assertThat(savedGame).isNotNull();
         assertThat(savedGame.getId()).isNotNull();
@@ -89,6 +95,7 @@ class GameServiceIntegrationTests {
 
     @Test
     void deleteById() {
+        // Verifies that the game is deleted correctly and no longer exists in the repository
         Long idToDelete = testGame.getId();
         gameService.deleteById(idToDelete);
         assertThrows(NoSuchElementException.class, () -> gameService.getById(idToDelete));

@@ -26,12 +26,14 @@ class PlatformServiceIntegrationTests {
 
     @BeforeEach
     void setUp() {
+        // Creates and saves a test platform before each test
         testPlatform = new Platform("TestPlatform", null);
         platformRepository.save(testPlatform);
     }
 
     @Test
     void save() {
+        // Verifies that a new platform is saved correctly with a generated ID
         Platform newPlatform = new Platform("NewPlatform", null);
         Platform savedPlatform = platformService.save(newPlatform);
 
@@ -42,6 +44,7 @@ class PlatformServiceIntegrationTests {
 
     @Test
     void getAll() {
+        // Verifies that all platforms are retrieved, including the test platform
         List<Platform> platforms = platformService.getAll();
         assertThat(platforms).isNotEmpty();
         assertThat(platforms).contains(testPlatform);
@@ -49,6 +52,7 @@ class PlatformServiceIntegrationTests {
 
     @Test
     void getById() {
+        // Verifies that the platform is retrieved correctly by ID
         Platform foundPlatform = platformService.getById(testPlatform.getId());
 
         assertThat(foundPlatform).isNotNull();
@@ -57,6 +61,7 @@ class PlatformServiceIntegrationTests {
 
     @Test
     void deleteById() {
+        // Verifies that a platform is deleted correctly and no longer exists in the repository
         platformService.deleteById(testPlatform.getId());
         assertThat(platformRepository.findById(testPlatform.getId())).isEmpty();
     }

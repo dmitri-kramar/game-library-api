@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 import java.util.Objects;
 import java.util.Set;
 
-// Platform entity represents a gaming platform like PC, PlayStation, or Xbox.
-// A platform can be associated with multiple games.
+// Entity representing a platform, which can have multiple games associated with it.
 
 @Entity
 @Data

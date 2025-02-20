@@ -39,6 +39,7 @@ class UserServiceIntegrationTests {
 
     @BeforeEach
     void setUp() {
+        // Retrieves the 'USER' role and creates a test user with encoded password
         Role userRole = roleRepository.findByName(RoleName.USER)
                 .orElseThrow(() -> new IllegalStateException("Role USER not found"));
 
@@ -52,6 +53,7 @@ class UserServiceIntegrationTests {
 
     @Test
     void save() {
+        // Verifies that a new user is saved with a hashed password
         UserRequestDTO userRequestDTO = new UserRequestDTO("newUser", "newPassword");
         User savedUser = userService.save(userRequestDTO);
 
@@ -62,6 +64,7 @@ class UserServiceIntegrationTests {
 
     @Test
     void saveUsernameAlreadyExists() {
+        // Verifies that trying to save a user with an existing username throws an exception
         UserRequestDTO userRequestDTO = new UserRequestDTO("testUser", "newPassword");
 
         IllegalArgumentException exception = assertThrows(
@@ -71,6 +74,7 @@ class UserServiceIntegrationTests {
 
     @Test
     void updatePassword() {
+        // Verifies that the user's password is updated successfully
         PasswordDTO dto = new PasswordDTO("password123", "newPassword123");
         User updatedUser = userService.updatePassword(testUser.getId(), dto);
 
@@ -80,6 +84,7 @@ class UserServiceIntegrationTests {
 
     @Test
     void updatePasswordInvalidOldPassword() {
+        // Verifies that an incorrect old password throws an exception
         PasswordDTO dto = new PasswordDTO("wrongPassword", "newPassword123");
 
         IllegalArgumentException exception = assertThrows(
@@ -89,6 +94,7 @@ class UserServiceIntegrationTests {
 
     @Test
     void updatePasswordSameAsOld() {
+        // Verifies that trying to set the same password as the old one throws an exception
         PasswordDTO dto = new PasswordDTO("password123", "password123");
 
         IllegalArgumentException exception = assertThrows(
@@ -98,6 +104,7 @@ class UserServiceIntegrationTests {
 
     @Test
     void getAll() {
+        // Verifies that all users are retrieved, including the test user
         List<User> users = userService.getAll();
         assertThat(users).isNotEmpty();
         assertThat(users).contains(testUser);
@@ -105,6 +112,7 @@ class UserServiceIntegrationTests {
 
     @Test
     void getById() {
+        // Verifies that a user is retrieved correctly by ID
         User foundUser = userService.getById(testUser.getId());
 
         assertThat(foundUser).isNotNull();
@@ -113,6 +121,7 @@ class UserServiceIntegrationTests {
 
     @Test
     void deleteById() {
+        // Verifies that a user is deleted and no longer exists in the repository
         userService.deleteById(testUser.getId());
         assertThat(userRepository.findById(testUser.getId())).isEmpty();
     }

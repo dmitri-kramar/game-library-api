@@ -26,12 +26,14 @@ class GenreServiceIntegrationTests {
 
     @BeforeEach
     void setUp() {
+        // Creates and saves a test genre before each test
         testGenre = new Genre("TestGenre", null);
         genreRepository.save(testGenre);
     }
 
     @Test
     void save() {
+        // Verifies that a new genre is saved correctly with a generated ID
         Genre newGenre = new Genre("NewGenre", null);
         Genre savedGenre = genreService.save(newGenre);
 
@@ -42,6 +44,7 @@ class GenreServiceIntegrationTests {
 
     @Test
     void getAll() {
+        // Verifies that all genres are retrieved, including the test genre
         List<Genre> genres = genreService.getAll();
         assertThat(genres).isNotEmpty();
         assertThat(genres).contains(testGenre);
@@ -49,6 +52,7 @@ class GenreServiceIntegrationTests {
 
     @Test
     void getById() {
+        // Verifies that the genre is retrieved correctly by ID
         Genre foundGenre = genreService.getById(testGenre.getId());
 
         assertThat(foundGenre).isNotNull();
@@ -57,6 +61,7 @@ class GenreServiceIntegrationTests {
 
     @Test
     void deleteById() {
+        // Verifies that a genre is deleted correctly and no longer exists in the repository
         genreService.deleteById(testGenre.getId());
         assertThat(genreRepository.findById(testGenre.getId())).isEmpty();
     }

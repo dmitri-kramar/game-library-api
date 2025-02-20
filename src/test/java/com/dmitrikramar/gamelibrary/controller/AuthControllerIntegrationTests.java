@@ -40,21 +40,26 @@ class AuthControllerIntegrationTests {
 
     @BeforeEach
     void setUp() {
+        // Initializes the test data before each test
         userRequestTestDTO = new UserRequestTestDTO("testUser", "password123");
     }
 
+    // Converts UserRequestTestDTO to UserRequestDTO for the service layer
     public UserRequestDTO convertToDTO(UserRequestTestDTO userRequestTestDTO) {
         return new UserRequestDTO(userRequestTestDTO.username(), userRequestTestDTO.password());
     }
 
     @Test
     void registerUser_ShouldReturnCreatedUser_WhenValidRequest() throws Exception {
+        // Sends a POST request to /register and expects a CREATED response
+
         mockMvc.perform(post("/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userRequestTestDTO)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.username").value(userRequestTestDTO.username()));
 
+        // Verifies the user was saved in the database
         User savedUser = userRepository.findByUsername(userRequestTestDTO.username())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -66,6 +71,7 @@ class AuthControllerIntegrationTests {
     void loginUser_ShouldReturnSuccessMessage_WhenValidCredentials() throws Exception {
         userService.save(convertToDTO(userRequestTestDTO));
 
+        // Sends a POST request to /login with correct credentials and expects a success message
         mockMvc.perform(post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userRequestTestDTO)))
@@ -77,6 +83,7 @@ class AuthControllerIntegrationTests {
     void loginUser_ShouldReturnUnauthorized_WhenInvalidCredentials() throws Exception {
         userRequestTestDTO = new UserRequestTestDTO("testUser", "wrongPassword");
 
+        // Sends a POST request to /login with incorrect credentials and expects an unauthorized response
         mockMvc.perform(post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userRequestTestDTO)))

@@ -8,8 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
-// Developer entity represents a game development company with a name and a country.
-// Each developer is associated with multiple games they have created.
+// Entity representing a developer, with the developer's name and associated games.
 
 @Entity
 @Data

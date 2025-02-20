@@ -20,16 +20,19 @@ public class PlatformController {
 
     private final PlatformService platformService;
 
+    // Endpoint to get all platforms, accessible to authenticated users
     @GetMapping
     public ResponseEntity<List<Platform>> getAllPlatforms() {
         return ResponseEntity.ok(platformService.getAll());
     }
 
+    // Endpoint to get a platform by ID, accessible to authenticated users
     @GetMapping("/{id}")
     public ResponseEntity<Platform> getPlatform(@PathVariable Long id) {
         return ResponseEntity.ok(platformService.getById(id));
     }
 
+    // Endpoint to create a new platform, accessible only by ADMIN role
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Platform> createPlatform(@RequestBody Platform platform) {
@@ -37,6 +40,7 @@ public class PlatformController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedPlatform);
     }
 
+    // Endpoint to update an existing platform by ID, accessible only by ADMIN role
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
@@ -47,6 +51,7 @@ public class PlatformController {
         return ResponseEntity.ok(savedPlatform);
     }
 
+    // Endpoint to delete a platform by ID, accessible only by ADMIN role
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletePlatform(@PathVariable Long id) {

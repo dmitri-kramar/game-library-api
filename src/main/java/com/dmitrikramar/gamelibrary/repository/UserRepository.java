@@ -6,12 +6,15 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-// Repository interface for managing User entities in the database. Provides CRUD operations.
+// Repository interface for performing CRUD operations on User entities.
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
+    // Finds a User by its username.
+    // Returns an Optional<User> to handle the case where the user may not exist.
     Optional<User> findByUsername(String username);
 
+    // Checks if a User with the given username exists in the database.
     boolean existsByUsername(String username);
 }

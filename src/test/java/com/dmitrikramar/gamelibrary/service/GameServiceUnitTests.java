@@ -30,20 +30,25 @@ class GameServiceUnitTests {
 
     @BeforeEach
     void setUp() {
+        // Creating a test game object before each test
         testGame = new Game(1L, "Test Game", LocalDate.parse("2000-01-01"), "Description", null, null, null);
     }
 
     @Test
     void getAll_ShouldReturnGameList() {
+        // Mocking repository response
         when(gameRepository.findAllWithRelations()).thenReturn(List.of(testGame));
         List<Game> games = gameService.getAll();
         assertEquals(1, games.size());
         assertEquals("Test Game", games.get(0).getTitle());
+
+        // Ensuring repository method is called once
         verify(gameRepository, times(1)).findAllWithRelations();
     }
 
     @Test
     void getById_ShouldReturnGame_WhenExists() {
+        // Mocking a successful find operation
         when(gameRepository.findByIdWithRelations(1L)).thenReturn(Optional.of(testGame));
         Game game = gameService.getById(1L);
         assertEquals("Test Game", game.getTitle());
@@ -52,12 +57,16 @@ class GameServiceUnitTests {
 
     @Test
     void getById_ShouldThrowException_WhenNotFound() {
+        // Mocking an empty result
         when(gameRepository.findByIdWithRelations(1L)).thenReturn(Optional.empty());
+
+        // Expecting an exception when the game is not found
         assertThrows(NoSuchElementException.class, () -> gameService.getById(1L));
     }
 
     @Test
     void save_ShouldReturnSavedGame() {
+        // Mocking repository save behavior
         when(gameRepository.save(testGame)).thenReturn(testGame);
         Game savedGame = gameService.save(testGame);
         assertNotNull(savedGame);
@@ -67,7 +76,10 @@ class GameServiceUnitTests {
 
     @Test
     void deleteById_ShouldDeleteGame_WhenExists() {
+        // Mocking a successful find operation
         when(gameRepository.findByIdWithRelations(1L)).thenReturn(Optional.of(testGame));
+
+        // Ensuring delete method doesn't throw exceptions
         doNothing().when(gameRepository).delete(testGame);
         gameService.deleteById(1L);
         verify(gameRepository, times(1)).delete(testGame);
@@ -75,7 +87,10 @@ class GameServiceUnitTests {
 
     @Test
     void deleteById_ShouldThrowException_WhenNotFound() {
+        // Mocking an empty result
         when(gameRepository.findByIdWithRelations(1L)).thenReturn(Optional.empty());
+
+        // Expecting an exception when trying to delete a non-existent game
         assertThrows(NoSuchElementException.class, () -> gameService.deleteById(1L));
     }
 }

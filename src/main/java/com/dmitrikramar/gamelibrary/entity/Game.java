@@ -10,8 +10,8 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Set;
 
-// Game entity represents a video game with details like title, release date, rating, and description.
-// It is associated with a developer, platforms, genres, and reviews.
+// Entity representing a game with various attributes such as title, release date,
+// description, and relationships with other entities.
 
 @Entity
 @Data

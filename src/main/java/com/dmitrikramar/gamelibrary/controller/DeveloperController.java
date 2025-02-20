@@ -20,16 +20,19 @@ public class DeveloperController {
 
     private final DeveloperService developerService;
 
+    // Endpoint to get all developers, accessible to authenticated users
     @GetMapping
     public ResponseEntity<List<Developer>> getAllDevelopers() {
         return ResponseEntity.ok(developerService.getAll());
     }
 
+    // Endpoint to get a developer by ID, accessible to authenticated users
     @GetMapping("/{id}")
     public ResponseEntity<Developer> getDeveloper(@PathVariable Long id) {
         return ResponseEntity.ok(developerService.getById(id));
     }
 
+    // Endpoint to create a new developer, accessible only by ADMIN role
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Developer> createDeveloper(@RequestBody Developer developer) {
@@ -37,6 +40,7 @@ public class DeveloperController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedDeveloper);
     }
 
+    // Endpoint to update an existing developer by ID, accessible only by ADMIN role
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
@@ -47,6 +51,7 @@ public class DeveloperController {
         return ResponseEntity.ok(savedDeveloper);
     }
 
+    // Endpoint to delete a developer by ID, accessible only by ADMIN role
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteDeveloper(@PathVariable Long id) {

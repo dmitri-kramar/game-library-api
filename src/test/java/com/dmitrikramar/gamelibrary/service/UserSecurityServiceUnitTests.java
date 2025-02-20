@@ -40,12 +40,14 @@ class UserSecurityServiceUnitTests {
 
     @BeforeEach
     void setUp() {
+        // Initializing test user and setting security context
         testUser = new User(1L, "testUser", "encodedPassword", null);
         SecurityContextHolder.setContext(securityContext);
     }
 
     @Test
     void hasAccess_ShouldReturnTrue_WhenUserExistsAndMatches() {
+        // Mocking authenticated user with matching username
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.isAuthenticated()).thenReturn(true);
         when(authentication.getPrincipal()).thenReturn(userDetails);
@@ -57,12 +59,14 @@ class UserSecurityServiceUnitTests {
 
     @Test
     void hasAccess_ShouldReturnFalse_WhenAuthenticationIsNull() {
+        // If authentication is null, access should be denied
         when(securityContext.getAuthentication()).thenReturn(null);
         assertFalse(userSecurityService.hasAccess(1L));
     }
 
     @Test
     void hasAccess_ShouldReturnFalse_WhenPrincipalIsNotUserDetails() {
+        // If principal is not an instance of UserDetails, access should be denied
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.isAuthenticated()).thenReturn(true);
         when(authentication.getPrincipal()).thenReturn(new Object());
@@ -72,6 +76,7 @@ class UserSecurityServiceUnitTests {
 
     @Test
     void hasAccess_ShouldReturnFalse_WhenUserNotFound() {
+        // If the user is not found in the repository, access should be denied
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.isAuthenticated()).thenReturn(true);
         when(authentication.getPrincipal()).thenReturn(userDetails);

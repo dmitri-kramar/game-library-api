@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
-// Role entity represents a role assigned to a user, such as USER or ADMIN.
-// A role can be associated with multiple users.
+// Entity representing a role in the application.
+// Each role defines a set of permissions granted to users.
 
 @Entity
 @Data

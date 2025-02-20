@@ -20,16 +20,19 @@ public class GenreController {
 
     private final GenreService genreService;
 
+    // Endpoint to get all genres, accessible to authenticated users
     @GetMapping
     public ResponseEntity<List<Genre>> getAllGenres() {
         return ResponseEntity.ok(genreService.getAll());
     }
 
+    // Endpoint to get a genre by ID, accessible to authenticated users
     @GetMapping("/{id}")
     public ResponseEntity<Genre> getGenre(@PathVariable Long id) {
         return ResponseEntity.ok(genreService.getById(id));
     }
 
+    // Endpoint to create a new genre, accessible only by ADMIN role
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Genre> createGenre(@RequestBody Genre genre) {
@@ -37,6 +40,7 @@ public class GenreController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedGenre);
     }
 
+    // Endpoint to update an existing genre by ID, accessible only by ADMIN role
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
@@ -47,6 +51,7 @@ public class GenreController {
         return ResponseEntity.ok(savedGenre);
     }
 
+    // Endpoint to delete a genre by ID, accessible only by ADMIN role
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteGenre(@PathVariable Long id) {

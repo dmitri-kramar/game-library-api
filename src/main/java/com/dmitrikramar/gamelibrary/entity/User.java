@@ -5,9 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-// User entity represents a person using the game library system.
-// Users have unique usernames, encrypted passwords, and can have multiple roles.
-// They can also submit reviews for games.
+// Entity class representing a User. It is mapped to the 'users' table in the database.
 
 @Entity
 @Data

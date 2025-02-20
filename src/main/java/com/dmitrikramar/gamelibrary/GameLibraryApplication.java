@@ -10,6 +10,7 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
 @ServletComponentScan
 public class GameLibraryApplication {
 
+	// Starts the application.
 	public static void main(String[] args) {
 		SpringApplication.run(GameLibraryApplication.class, args);
 	}

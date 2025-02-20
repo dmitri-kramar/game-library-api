@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.NoSuchElementException;
 
+// Global exception handler that manages various exceptions and returns appropriate HTTP responses.
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
 

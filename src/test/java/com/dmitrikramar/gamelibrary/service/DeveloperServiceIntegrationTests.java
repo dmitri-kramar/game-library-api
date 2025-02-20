@@ -26,15 +26,18 @@ class DeveloperServiceIntegrationTests {
 
     @BeforeEach
     void setUp() {
+        // Creates and saves a test developer before each test
         testDeveloper = new Developer("TestDeveloper", null);
         developerRepository.save(testDeveloper);
     }
 
     @Test
     void save() {
+        // Tests the save functionality of the DeveloperService
         Developer newDeveloper = new Developer("NewDeveloper", null);
         Developer savedDeveloper = developerService.save(newDeveloper);
 
+        // Verifies the saved developer is not null, has an ID, and the name is correct
         assertThat(savedDeveloper).isNotNull();
         assertThat(savedDeveloper.getId()).isNotNull();
         assertThat(savedDeveloper.getName()).isEqualTo("NewDeveloper");
@@ -42,22 +45,30 @@ class DeveloperServiceIntegrationTests {
 
     @Test
     void getAll() {
+        // Tests the retrieval of all developers through the DeveloperService
         List<Developer> developers = developerService.getAll();
+
+        // Verifies that the list is not empty and contains the test developer
         assertThat(developers).isNotEmpty();
         assertThat(developers).contains(testDeveloper);
     }
 
     @Test
     void getById() {
+        // Tests the retrieval of a developer by ID through the DeveloperService
         Developer foundDeveloper = developerService.getById(testDeveloper.getId());
 
+        // Verifies that the developer was found and its ID matches the expected ID
         assertThat(foundDeveloper).isNotNull();
         assertThat(foundDeveloper.getId()).isEqualTo(testDeveloper.getId());
     }
 
     @Test
     void deleteById() {
+        // Tests the deletion of a developer by ID through the DeveloperService
         developerService.deleteById(testDeveloper.getId());
+
+        // Verifies that the developer was deleted and no longer exists in the repository
         assertThat(developerRepository.findById(testDeveloper.getId())).isEmpty();
     }
 }
