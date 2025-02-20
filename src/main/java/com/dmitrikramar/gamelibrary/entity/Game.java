@@ -2,7 +2,9 @@ package com.dmitrikramar.gamelibrary.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -13,6 +15,8 @@ import java.util.Set;
 
 @Entity
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Game {
 
     @Id
@@ -50,6 +54,16 @@ public class Game {
     )
     @JsonIgnoreProperties("games")
     private Set<Genre> genres;
+
+    public Game(String title, LocalDate releaseDate, String description, Developer developer,
+                Set<Platform> platforms, Set<Genre> genres) {
+        this.title = title;
+        this.releaseDate = releaseDate;
+        this.description = description;
+        this.developer = developer;
+        this.platforms = platforms;
+        this.genres = genres;
+    }
 
     @Override
     public boolean equals(Object o) {

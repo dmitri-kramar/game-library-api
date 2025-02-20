@@ -1,7 +1,9 @@
 package com.dmitrikramar.gamelibrary.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 // User entity represents a person using the game library system.
 // Users have unique usernames, encrypted passwords, and can have multiple roles.
@@ -9,6 +11,8 @@ import lombok.Data;
 
 @Entity
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class User {
 
     @Id
@@ -24,4 +28,10 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
+
+    public User(String username, String password, Role role) {
+        this.username = username;
+        this.password = password;
+        this.role = role;
+    }
 }

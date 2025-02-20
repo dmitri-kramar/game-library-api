@@ -2,7 +2,9 @@ package com.dmitrikramar.gamelibrary.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
@@ -11,6 +13,8 @@ import java.util.Set;
 
 @Entity
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Developer {
 
     @Id
@@ -23,4 +27,9 @@ public class Developer {
     @OneToMany(mappedBy = "developer")
     @JsonIgnoreProperties({"developer", "platforms", "genres", "releaseDate", "description"})
     private Set<Game> games;
+
+    public Developer(String name, Set<Game> games) {
+        this.name = name;
+        this.games = games;
+    }
 }
