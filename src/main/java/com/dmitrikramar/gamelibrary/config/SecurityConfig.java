@@ -15,9 +15,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-// Configures security settings for the application,
-// including authentication, session management, and access control.
+import java.util.Locale;
+
+/*
+Configures security settings for the application,
+including authentication, session management, and access control.
+*/
 
 @Configuration
 @EnableWebSecurity
@@ -31,30 +37,50 @@ public class SecurityConfig {
                 .sessionManagement(configurer -> configurer
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .anyRequest().authenticated()
-                )
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/login", "/register").anonymous()
+                        .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .logout(LogoutConfigurer::permitAll);
 
         return http.build();
     }
 
-    // Password encoder bean for encrypting passwords
+    /*
+    Password encoder bean for encrypting passwords
+    */
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Bean for method validation (for annotations like @Valid)
+    /*
+    Bean for method validation (for annotations like @Valid)
+    */
+
     @Bean
     public static MethodValidationPostProcessor methodValidationPostProcessor() {
         return new MethodValidationPostProcessor();
     }
 
-    // Authentication manager to handle authentication logic
+    /*
+    Authentication manager to handle authentication logic
+    */
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
+    }
+
+    /*
+    Bean sets default locale to English
+    */
+
+    @Bean
+    public LocaleResolver localeResolver() {
+        SessionLocaleResolver resolver = new SessionLocaleResolver();
+        resolver.setDefaultLocale(Locale.ENGLISH);
+        return resolver;
     }
 }

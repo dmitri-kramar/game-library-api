@@ -2,6 +2,9 @@ package com.dmitrikramar.gamelibrary.controller;
 
 import com.dmitrikramar.gamelibrary.entity.Platform;
 import com.dmitrikramar.gamelibrary.service.PlatformService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-// Controller for handling platform-related API requests.
+/*
+Controller for handling platform-related API requests.
+*/
 
 @RestController
 @RequestMapping("/platforms")
@@ -20,19 +25,33 @@ public class PlatformController {
 
     private final PlatformService platformService;
 
-    // Endpoint to get all platforms, accessible to authenticated users
+    /*
+    Endpoint to get all platforms, accessible to authenticated users
+    */
+
+    @Operation(summary = "Get all platforms (USER)", description = "Retrieves a list of all platforms.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the list of platforms"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized – Authentication is required")
+    })
     @GetMapping
     public ResponseEntity<List<Platform>> getAllPlatforms() {
         return ResponseEntity.ok(platformService.getAll());
     }
 
-    // Endpoint to get a platform by ID, accessible to authenticated users
+    /*
+    Endpoint to get a platform by ID, accessible to authenticated users
+    */
+
     @GetMapping("/{id}")
     public ResponseEntity<Platform> getPlatform(@PathVariable Long id) {
         return ResponseEntity.ok(platformService.getById(id));
     }
 
-    // Endpoint to create a new platform, accessible only by ADMIN role
+    /*
+    Endpoint to create a new platform, accessible only by ADMIN role
+    */
+
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Platform> createPlatform(@RequestBody Platform platform) {
@@ -40,7 +59,10 @@ public class PlatformController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedPlatform);
     }
 
-    // Endpoint to update an existing platform by ID, accessible only by ADMIN role
+    /*
+    Endpoint to updateName an existing platform by ID, accessible only by ADMIN role
+    */
+
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
@@ -51,7 +73,10 @@ public class PlatformController {
         return ResponseEntity.ok(savedPlatform);
     }
 
-    // Endpoint to delete a platform by ID, accessible only by ADMIN role
+    /*
+    Endpoint to delete a platform by ID, accessible only by ADMIN role
+    */
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletePlatform(@PathVariable Long id) {

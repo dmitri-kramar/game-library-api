@@ -39,7 +39,7 @@ class DeveloperControllerIntegrationTests {
     @BeforeEach
     void setUp() {
         // Initializes the test developer before each test and saves it to the repository
-        testDeveloper = new Developer("TestDeveloper", null);
+        testDeveloper = new Developer("TestDeveloper");
         developerRepository.save(testDeveloper);
     }
 
@@ -82,7 +82,7 @@ class DeveloperControllerIntegrationTests {
     @Test
     @WithMockUser(roles = "ADMIN")
     void createDeveloper_ShouldReturnCreatedDeveloper_WhenAdmin() throws Exception {
-        Developer newDeveloper = new Developer("NewDeveloper", null);
+        Developer newDeveloper = new Developer("NewDeveloper");
 
         // Sends a POST request to create a new developer and expects
         // it to return a created response with the correct details
@@ -95,7 +95,7 @@ class DeveloperControllerIntegrationTests {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void updateDeveloper_ShouldReturnUpdatedDeveloper_WhenAdmin() throws Exception {
+    void updateDeveloperName_ShouldReturnDeveloperWithUpdatedName_WhenAdmin() throws Exception {
         testDeveloper.setName("UpdatedDeveloper");
 
         // Updates the test developer's name and sends a PUT request to update it in the database

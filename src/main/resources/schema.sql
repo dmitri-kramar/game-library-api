@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS game (
     description VARCHAR(255) NOT NULL,
     release_date DATE NOT NULL,
     title VARCHAR(255) NOT NULL,
-    developer_id BIGINT NOT NULL,
+    developer_id BIGINT,
     CONSTRAINT FK_game_developer FOREIGN KEY (developer_id) REFERENCES developer(id)
 );
 

@@ -48,7 +48,7 @@ class GameServiceIntegrationTests {
     @BeforeEach
     void setUp() {
         // Creates and saves test developer, platform, and genre before each test
-        Developer testDeveloper = new Developer("TestDeveloper", null);
+        Developer testDeveloper = new Developer("TestDeveloper");
         Platform testPlatform = new Platform("TestPlatform", null);
         Genre testGenre = new Genre("TestGenre", null);
 

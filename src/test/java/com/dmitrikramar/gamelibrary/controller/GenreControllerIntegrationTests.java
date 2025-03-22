@@ -98,7 +98,7 @@ class GenreControllerIntegrationTests {
     void updateGenre_ShouldReturnUpdatedGenre_WhenAdmin() throws Exception {
         testGenre.setName("Updated Genre");
 
-        // Updates the test genre's name and sends a PUT request to update it in the database
+        // Updates the test genre's name and sends a PUT request to updateName it in the database
         mockMvc.perform(put("/genres/{id}", testGenre.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testGenre)))

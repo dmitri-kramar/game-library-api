@@ -24,4 +24,6 @@ public interface DeveloperRepository extends JpaRepository<Developer, Long> {
     // Finds all Developers and eagerly fetches their related 'games' using LEFT JOIN FETCH.
     @Query("SELECT d FROM Developer d LEFT JOIN FETCH d.games")
     List<Developer> findAllWithRelations();
+
+    boolean existsByName(String name);
 }

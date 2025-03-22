@@ -57,7 +57,7 @@ class GameControllerIntegrationTests {
 
     @BeforeEach
     void setUp() {
-        Developer testDeveloper = new Developer("TestDeveloper", null);
+        Developer testDeveloper = new Developer("TestDeveloper");
         Platform testPlatform = new Platform("TestPlatform", null);
         Genre testGenre = new Genre("TestGenre", null);
 
@@ -128,7 +128,7 @@ class GameControllerIntegrationTests {
     void updateGame_ShouldReturnUpdatedGame_WhenAdmin() throws Exception {
         testGame.setTitle("Updated Title");
 
-        // Updates the test game's title and sends a PUT request to update it in the database
+        // Updates the test game's title and sends a PUT request to updateName it in the database
         mockMvc.perform(put("/games/{id}", testGame.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testGame)))

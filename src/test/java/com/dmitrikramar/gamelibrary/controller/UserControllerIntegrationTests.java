@@ -82,7 +82,7 @@ class UserControllerIntegrationTests {
     void updatePassword_ShouldReturnUpdatedUser_WhenAuthorized() throws Exception {
         PasswordTestDTO passwordTestDTO = new PasswordTestDTO("password123", "newPassword");
 
-        // Sends a PUT request to update the user's password and expects it to be updated correctly
+        // Sends a PUT request to updateName the user's password and expects it to be updated correctly
         mockMvc.perform(put("/users/{id}", testUser.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(passwordTestDTO)))
@@ -101,7 +101,7 @@ class UserControllerIntegrationTests {
     void updatePassword_ShouldReturnBadRequest_WhenValidationFails() throws Exception {
         PasswordTestDTO invalidPasswordTestDTO = new PasswordTestDTO("", "short");
 
-        // Sends a PUT request to update the password with invalid data and expects a bad request response
+        // Sends a PUT request to updateName the password with invalid data and expects a bad request response
         mockMvc.perform(put("/users/{id}", testUser.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidPasswordTestDTO)))

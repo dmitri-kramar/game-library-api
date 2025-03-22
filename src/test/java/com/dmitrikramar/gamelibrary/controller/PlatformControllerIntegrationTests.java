@@ -98,7 +98,7 @@ class PlatformControllerIntegrationTests {
     void updatePlatform_ShouldReturnUpdatedPlatform_WhenAdmin() throws Exception {
         testPlatform.setName("Updated Platform");
 
-        // Updates the test platform's name and sends a PUT request to update it in the database
+        // Updates the test platform's name and sends a PUT request to updateName it in the database
         mockMvc.perform(put("/platforms/{id}", testPlatform.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testPlatform)))

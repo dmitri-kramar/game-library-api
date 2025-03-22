@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
+
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -54,6 +56,7 @@ class AuthControllerIntegrationTests {
         // Sends a POST request to /register and expects a CREATED response
 
         mockMvc.perform(post("/register")
+                        .with(anonymous())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userRequestTestDTO)))
                 .andExpect(status().isCreated())
@@ -73,6 +76,7 @@ class AuthControllerIntegrationTests {
 
         // Sends a POST request to /login with correct credentials and expects a success message
         mockMvc.perform(post("/login")
+                        .with(anonymous())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userRequestTestDTO)))
                 .andExpect(status().isOk())
@@ -85,6 +89,7 @@ class AuthControllerIntegrationTests {
 
         // Sends a POST request to /login with incorrect credentials and expects an unauthorized response
         mockMvc.perform(post("/login")
+                        .with(anonymous())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userRequestTestDTO)))
                 .andExpect(status().isUnauthorized());

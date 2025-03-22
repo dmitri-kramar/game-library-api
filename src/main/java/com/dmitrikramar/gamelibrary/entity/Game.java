@@ -33,7 +33,7 @@ public class Game {
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "developer_id", nullable = false)
+    @JoinColumn(name = "developer_id")
     @JsonIgnoreProperties("games")
     private Developer developer;
 

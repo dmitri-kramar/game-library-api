@@ -1,5 +1,6 @@
 package com.dmitrikramar.gamelibrary.service;
 
+import com.dmitrikramar.gamelibrary.dto.DeveloperDTO;
 import com.dmitrikramar.gamelibrary.entity.Developer;
 import com.dmitrikramar.gamelibrary.repository.DeveloperRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,11 +27,13 @@ class DeveloperServiceUnitTests {
     private DeveloperService developerService;
 
     private Developer testDeveloper;
+    private DeveloperDTO testDeveloperDTO;
 
     @BeforeEach
     void setUp() {
         // Creating a test developer object before each test
         testDeveloper = new Developer(1L, "Test Developer", null);
+        testDeveloperDTO = new DeveloperDTO("Test Developer");
     }
 
     @Test
@@ -66,10 +69,23 @@ class DeveloperServiceUnitTests {
     @Test
     void save_ShouldReturnSavedDeveloper() {
         // Mocking repository save behavior
-        when(developerRepository.save(testDeveloper)).thenReturn(testDeveloper);
-        Developer savedDeveloper = developerService.save(testDeveloper);
+        when(developerRepository.save(any(Developer.class))).thenReturn(testDeveloper);
+        Developer savedDeveloper = developerService.save(testDeveloperDTO);
         assertNotNull(savedDeveloper);
         assertEquals("Test Developer", savedDeveloper.getName());
+        verify(developerRepository, times(1)).save(any(Developer.class));
+    }
+
+    @Test
+    void updateName_ShouldReturnDeveloperWithUpdatedName() {
+        when(developerRepository.findByIdWithRelations(1L)).thenReturn(Optional.of(testDeveloper));
+        when(developerRepository.save(any(Developer.class))).thenReturn(testDeveloper);
+
+        DeveloperDTO developerDTO = new DeveloperDTO("Updated Developer");
+        Developer updatedDeveloper = developerService.updateName(1L, developerDTO);
+
+        assertEquals("Updated Developer", updatedDeveloper.getName());
+        verify(developerRepository, times(1)).findByIdWithRelations(1L);
         verify(developerRepository, times(1)).save(testDeveloper);
     }
 

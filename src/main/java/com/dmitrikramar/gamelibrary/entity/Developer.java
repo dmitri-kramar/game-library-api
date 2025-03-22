@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.Set;
 
 // Entity representing a developer, with the developer's name and associated games.
@@ -25,10 +26,9 @@ public class Developer {
 
     @OneToMany(mappedBy = "developer")
     @JsonIgnoreProperties({"developer", "platforms", "genres", "releaseDate", "description"})
-    private Set<Game> games;
+    private Set<Game> games = new HashSet<>();
 
-    public Developer(String name, Set<Game> games) {
+    public Developer(String name) {
         this.name = name;
-        this.games = games;
     }
 }
