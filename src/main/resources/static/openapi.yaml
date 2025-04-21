@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
   title: Game Library API
-  version: "2.0"
+  version: "2.1"
   description: |
     This REST API manages a video game library. Unauthenticated users can access only the /register 
     and /login endpoints. Authentication is handled using HTTP Basic Auth in a stateless manner. Authenticated 
@@ -13,6 +13,7 @@ info:
     To test protected endpoints, click "Authorize" and enter the following credentials:
 
     — admin (for both login and password)
+    
     — user (for both login and password)
   contact:
     name: Dmitri Kramar

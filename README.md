@@ -1,50 +1,89 @@
-# Video Game Library API
+# 🎮 Game Library API
 
-A RESTful API for managing a video game library, allowing authenticated users to interact 
-with games, developers, genres, platforms, and user profiles.
+A RESTful API for managing a video game library. Users can view games, developers, genres, and platforms. 
+Admins can create, update, and delete them.
 
-## Features
+## 🚀 Technologies
 
-- **User Management**:
-    - Authenticated users can view the list of games, developers, genres, and platforms, 
-      as well as individual entries for each.
-    - Users can view their own profile and update their password or delete their account.
-    - Administrators have the ability to manage the full set of users, and to add, 
-      update, and delete entities (games, developers, genres, platforms).
+- Java 17
+- Spring Boot 3
+- Spring Security
+- Spring Data JPA
+- Hibernate
+- H2 Database (in-memory)
+- OpenAPI / Swagger UI
+- Maven
+- Lombok
 
-- **Standard CRUD Operations**:
-    - `GET` all resources or specific entries by ID.
-    - `POST` to create new entities.
-    - `PUT` to update existing entities.
-    - `DELETE` to remove resources.
+## 📦 Getting Started
 
-## Entities
+### Clone the repository
 
-- **Developer**: Represents a game developer.
-- **Game**: Represents a video game.
-- **Genre**: Represents a genre of games.
-- **Platform**: Represents the platform on which a game can be played.
-- **Role**: Represents the role of a user (e.g., ADMIN, USER).
-- **User**: Represents the user of the application.
+```bash
+git clone https://github.com/dmitri-kramar/game-library-api.git
+cd game-library-api
+```
 
-DTOs (Data Transfer Objects) are used for handling sensitive information and preventing 
-unnecessary exposure of sensitive fields like passwords.
+### Run the application
 
-## Technologies Used
+```bash
+./mvnw spring-boot:run
+```
 
-- **Backend**:
-    - Java 17
-    - Spring Boot
-    - Spring Security
-    - Hibernate
-    - JPA (Java Persistence API)
-    - MySQL
-    - Maven
-    - Lombok
+The API will be available at:  
+`http://localhost:8080`
 
-- **Security**:
-    - Basic authentication using `BCryptPasswordEncoder` for password hashing.
-    - Stateless session management with `SessionCreationPolicy.STATELESS`.
-    - Data validation using `@Valid` and custom DTOs to ensure sensitive data is not exposed.
+### Access Swagger UI
 
-© https://github.com/dmitri-kramar
+Open your browser and go to:  
+[http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+
+Use HTTP Basic Auth in Swagger to authorize.
+
+## 🧪 Testing
+
+To run all tests:
+
+```bash
+./mvnw test
+```
+
+- **Integration tests** validate real controller and service logic.
+- **Unit tests** use mock dependencies for isolated testing.
+
+## 🗄️ Database
+
+The project uses an in-memory H2 database:
+
+- Schema initialized via `schema.sql`
+- Sample data preloaded via `data.sql`
+
+## 🔐 Authentication
+
+- Auth endpoints: `/register` and `/login`
+- All other endpoints require authentication
+- Use Swagger with Basic Auth
+
+### 👤 User Roles
+
+- `USER`: Can view entities and manage own account
+- `ADMIN`: Full access to all data and user management
+
+## 🔐 Security
+
+- **Basic Authentication** with Spring Security
+- **Password Hashing** using `BCryptPasswordEncoder` (never stores raw passwords)
+- **Data Validation** via `@Valid` annotations and custom DTOs
+- **Write-only fields** (e.g., passwords) using `@JsonProperty(access = WRITE_ONLY)` to prevent exposure in responses
+- **Role-based access control** using `@PreAuthorize` and a `UserSecurityService` for ownership checks
+- **Centralized exception handling** to avoid leaking stack traces and internal details
+
+
+## 📄 OpenAPI
+
+The API is documented with OpenAPI 3.  
+Specification is available at: `/openapi.yaml`
+
+---
+
+© 2025 github.com/dmitri-kramar
