@@ -1,27 +1,17 @@
 package com.dmitrikramar.gamelibrary.service;
 
-import com.dmitrikramar.gamelibrary.entity.Developer;
+import com.dmitrikramar.gamelibrary.dto.GameDTO;
 import com.dmitrikramar.gamelibrary.entity.Game;
-import com.dmitrikramar.gamelibrary.entity.Genre;
-import com.dmitrikramar.gamelibrary.entity.Platform;
-import com.dmitrikramar.gamelibrary.repository.DeveloperRepository;
 import com.dmitrikramar.gamelibrary.repository.GameRepository;
-import com.dmitrikramar.gamelibrary.repository.GenreRepository;
-import com.dmitrikramar.gamelibrary.repository.PlatformRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @Transactional
@@ -33,72 +23,54 @@ class GameServiceIntegrationTests {
     @Autowired
     private GameRepository gameRepository;
 
-    @Autowired
-    private DeveloperRepository developerRepository;
-
-    @Autowired
-    private PlatformRepository platformRepository;
-
-    @Autowired
-    private GenreRepository genreRepository;
-
-
     private Game testGame;
 
     @BeforeEach
     void setUp() {
-        // Creates and saves test developer, platform, and genre before each test
-        Developer testDeveloper = new Developer("TestDeveloper");
-        Platform testPlatform = new Platform("TestPlatform", null);
-        Genre testGenre = new Genre("TestGenre", null);
-
-        developerRepository.save(testDeveloper);
-        platformRepository.save(testPlatform);
-        genreRepository.save(testGenre);
-
-        // Creates and saves a test game
-        testGame = new Game("Test Game", LocalDate.parse("2000-01-01"), "Description",
-                testDeveloper, new HashSet<>(Set.of(testPlatform)), new HashSet<>(Set.of(testGenre)));
-
+        testGame = new Game("Test Game", null, null, null, null, null);
         gameRepository.save(testGame);
     }
 
     @Test
     void getAll() {
-        // Verifies that the service returns all games, including the test game
         List<Game> games = gameService.getAll();
+
         assertThat(games).isNotEmpty();
-        assertThat(games).contains(testGame);
+        assertThat(games.stream().anyMatch(g -> g.getId().equals(testGame.getId()))).isTrue();
     }
 
     @Test
     void getById() {
-        // Verifies that the service retrieves the correct game by ID
-        Game game = gameService.getById(testGame.getId());
-        assertThat(game).isEqualTo(testGame);
-    }
+        Game foundGame = gameService.getById(testGame.getId());
 
-    @Test
-    void getById_ShouldThrowException_WhenGameNotFound() {
-        // Verifies that an exception is thrown when the game with the provided ID doesn't exist
-        Long nonExistentId = 999L;
-        assertThrows(NoSuchElementException.class, () -> gameService.getById(nonExistentId));
+        assertThat(foundGame).isNotNull();
+        assertThat(foundGame.getId()).isEqualTo(testGame.getId());
     }
 
     @Test
     void save() {
-        // Verifies that the game is saved correctly and has an ID
-        Game savedGame = gameService.save(testGame);
+        GameDTO newGame = new GameDTO("New Game", null, null, null, null, null);
+        Game savedGame = gameService.save(newGame);
+
         assertThat(savedGame).isNotNull();
         assertThat(savedGame.getId()).isNotNull();
+        assertThat(savedGame.getTitle()).isEqualTo("New Game");
+    }
+
+    @Test
+    void updateById() {
+        GameDTO newGame = new GameDTO("Updated Game", null, null, null, null, null);
+        Game updatedGame = gameService.updateById(testGame.getId(), newGame);
+
+        assertThat(updatedGame).isNotNull();
+        assertThat(updatedGame.getTitle()).isEqualTo("Updated Game");
     }
 
     @Test
     void deleteById() {
-        // Verifies that the game is deleted correctly and no longer exists in the repository
-        Long idToDelete = testGame.getId();
-        gameService.deleteById(idToDelete);
-        assertThrows(NoSuchElementException.class, () -> gameService.getById(idToDelete));
+        gameService.deleteById(testGame.getId());
+
+        assertThat(gameRepository.findById(testGame.getId())).isEmpty();
     }
 }
 

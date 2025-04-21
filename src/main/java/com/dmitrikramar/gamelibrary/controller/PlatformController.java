@@ -1,23 +1,21 @@
 package com.dmitrikramar.gamelibrary.controller;
 
+import com.dmitrikramar.gamelibrary.dto.PlatformDTO;
 import com.dmitrikramar.gamelibrary.entity.Platform;
 import com.dmitrikramar.gamelibrary.service.PlatformService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/*
-Controller for handling platform-related API requests.
-*/
-
+/**
+ * REST controller for managing platforms.
+ * Provides endpoints to create, retrieve, update, and delete platforms.
+ */
 @RestController
 @RequestMapping("/platforms")
 @RequiredArgsConstructor
@@ -25,58 +23,65 @@ public class PlatformController {
 
     private final PlatformService platformService;
 
-    /*
-    Endpoint to get all platforms, accessible to authenticated users
-    */
-
-    @Operation(summary = "Get all platforms (USER)", description = "Retrieves a list of all platforms.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved the list of platforms"),
-            @ApiResponse(responseCode = "401", description = "Unauthorized – Authentication is required")
-    })
+    /**
+     * Retrieves a list of all platforms.
+     * Accessible only to authenticated users.
+     *
+     * @return list of platforms with HTTP 200 status
+     */
     @GetMapping
     public ResponseEntity<List<Platform>> getAllPlatforms() {
         return ResponseEntity.ok(platformService.getAll());
     }
 
-    /*
-    Endpoint to get a platform by ID, accessible to authenticated users
-    */
-
+    /**
+     * Retrieves a platform by its ID.
+     * Accessible only to authenticated users.
+     *
+     * @param id the ID of the platform
+     * @return the platform data with HTTP 200 status
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Platform> getPlatform(@PathVariable Long id) {
         return ResponseEntity.ok(platformService.getById(id));
     }
 
-    /*
-    Endpoint to create a new platform, accessible only by ADMIN role
-    */
-
+    /**
+     * Creates a new platform.
+     * Accessible only to users with ADMIN role.
+     *
+     * @param dto the platform data
+     * @return the created platform with HTTP 201 status
+     */
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Platform> createPlatform(@RequestBody Platform platform) {
-        Platform savedPlatform = platformService.save(platform);
+    public ResponseEntity<Platform> createPlatform(@Valid @RequestBody PlatformDTO dto) {
+        Platform savedPlatform = platformService.save(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedPlatform);
     }
 
-    /*
-    Endpoint to updateName an existing platform by ID, accessible only by ADMIN role
-    */
-
+    /**
+     * Updates the name of an existing platform by ID.
+     * Accessible only to users with ADMIN role.
+     *
+     * @param id  the ID of the platform to update
+     * @param dto the updated platform data
+     * @return the updated platform with HTTP 200 status
+     */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    @Transactional
-    public ResponseEntity<Platform> updatePlatform(@PathVariable Long id, @RequestBody Platform platform) {
-        Platform existingPlatform = platformService.getById(id);
-        existingPlatform.setName(platform.getName());
-        Platform savedPlatform = platformService.save(existingPlatform);
-        return ResponseEntity.ok(savedPlatform);
+    public ResponseEntity<Platform> updatePlatform(@PathVariable Long id, @Valid @RequestBody PlatformDTO dto) {
+        Platform updatedPlatform = platformService.updateNameById(id, dto);
+        return ResponseEntity.ok(updatedPlatform);
     }
 
-    /*
-    Endpoint to delete a platform by ID, accessible only by ADMIN role
-    */
-
+    /**
+     * Deletes a platform by its ID.
+     * Accessible only to users with ADMIN role.
+     *
+     * @param id the ID of the platform to delete
+     * @return HTTP 204 No Content status
+     */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletePlatform(@PathVariable Long id) {
@@ -84,4 +89,3 @@ public class PlatformController {
         return ResponseEntity.noContent().build();
     }
 }
-

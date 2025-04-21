@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -31,30 +32,24 @@ class UserDetailsServiceImplUnitTests {
 
     @BeforeEach
     void setUp() {
-        // Initializing a test user with a role
-        Role role = new Role(1L, RoleName.USER, null);
-        testUser = new User(1L, "testUser", "encodedPassword", role);
+        testUser = new User(1L, "testUser", "encodedPassword", new Role(1L, RoleName.USER, null));
     }
 
     @Test
     void loadUserByUsername_ShouldReturnUserDetails_WhenUserExists() {
-        // Mocking repository response to return the test user
         when(userRepository.findByUsername("testUser")).thenReturn(Optional.of(testUser));
 
         UserDetails userDetails = userDetailsService.loadUserByUsername("testUser");
 
-        // Validating that the returned user details match the test user
-        assertNotNull(userDetails);
-        assertEquals("testUser", userDetails.getUsername());
-        assertEquals("encodedPassword", userDetails.getPassword());
+        assertThat(userDetails).isNotNull();
+        assertThat(userDetails.getUsername()).isEqualTo("testUser");
+        assertThat(userDetails.getPassword()).isEqualTo("encodedPassword");
     }
 
     @Test
     void loadUserByUsername_ShouldThrowException_WhenUserNotFound() {
-        // Mocking repository response to return empty result
         when(userRepository.findByUsername("nonExistentUser")).thenReturn(Optional.empty());
 
-        // Expecting UsernameNotFoundException to be thrown
         assertThrows(UsernameNotFoundException.class, () ->
                 userDetailsService.loadUserByUsername("nonExistentUser"));
     }

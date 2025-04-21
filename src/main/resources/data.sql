@@ -1,34 +1,36 @@
 INSERT INTO developer (name)
 VALUES
-    ('Bethesda'),
-    ('CD Project Red'),
+    ('Bethesda Game Studios'),
+    ('CD Projekt Red'),
     ('Rockstar Games'),
-    ('TakeTwo Interactive'),
+    ('Valve'),
     ('Ubisoft');
 
 INSERT INTO genre (name)
 VALUES
     ('Action'),
-    ('Adventure'),
-    ('Fighting'),
-    ('FPS'),
-    ('Horror'),
-    ('Racing'),
     ('RPG'),
-    ('Sports'),
+    ('Adventure'),
+    ('Shooter'),
+    ('Stealth'),
+    ('Simulation'),
+    ('Racing'),
+    ('Platformer'),
     ('Strategy');
 
 INSERT INTO platform (name)
 VALUES
     ('PC'),
-    ('Playstation'),
-    ('Xbox');
+    ('PlayStation 5'),
+    ('Xbox Series X');
 
 INSERT INTO game (description, release_date, title, developer_id)
 VALUES
-    ('Futuristic open-world RPG.','2023-11-15','Cyberpunk 2077',3),
-    ('Doom on Mars','2004-07-17','Doom III',1),
-    ('Welcome to Los Santos!','2015-03-12','GTA 5',4);
+    ('A post-apocalyptic open-world RPG.', '2015-11-10', 'Fallout 4', 1),
+    ('Fantasy open-world RPG.', '2015-05-19', 'The Witcher 3: Wild Hunt', 2),
+    ('An epic Western action game.', '2018-10-26', 'Red Dead Redemption 2', 3),
+    ('Tactical shooter and bomb defusal.', '2012-08-21', 'Counter-Strike: Global Offensive', 4),
+    ('Historical action-adventure.', '2020-11-10', 'Assassin’s Creed Valhalla', 5);
 
 INSERT INTO role (name)
 VALUES
@@ -42,19 +44,24 @@ VALUES
 
 INSERT INTO game_genre
 VALUES
-    (1,1),
-    (2,1),
-    (3,1),
     (1,2),
+    (1,1),
     (2,2),
+    (2,3),
+    (3,1),
     (3,3),
-    (1,4),
-    (2,4);
+    (4,4),
+    (5,1),
+    (5,5);
 
 INSERT INTO game_platform
 VALUES
     (1,1),
-    (2,1),
-    (3,1),
     (1,2),
-    (2,3);
+    (2,1),
+    (2,2),
+    (3,1),
+    (3,3),
+    (4,1),
+    (5,1),
+    (5,2);

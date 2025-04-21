@@ -1,94 +1,87 @@
 package com.dmitrikramar.gamelibrary.controller;
 
+import com.dmitrikramar.gamelibrary.dto.GameDTO;
 import com.dmitrikramar.gamelibrary.entity.Game;
 import com.dmitrikramar.gamelibrary.service.GameService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/*
-Controller for handling game-related API requests.
-*/
-
+/**
+ * REST controller for managing games.
+ * Provides endpoints to create, retrieve, update, and delete games.
+ */
 @RestController
 @RequestMapping("/games")
 @RequiredArgsConstructor
-@Tag(name = "Games")
 public class GameController {
 
     private final GameService gameService;
 
-    /*
-    Endpoint to get all games, accessible to authenticated users
-    */
-
-    @Operation(summary = "Get all games (USER)", description = "Retrieves a list of all games.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved the list of games"),
-            @ApiResponse(responseCode = "401", description = "Unauthorized – Authentication is required")
-    })
+    /**
+     * Retrieves a list of all games.
+     * Accessible only to authenticated users.
+     *
+     * @return list of games with HTTP 200 status
+     */
     @GetMapping
     public ResponseEntity<List<Game>> getAllGames() {
         return ResponseEntity.ok(gameService.getAll());
     }
 
-    /*
-    Endpoint to get a game by ID, accessible to authenticated users
-    */
-
-    @Operation(summary = "Get a game by ID (USER)", description = "Retrieves a game by ID.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved the game by ID"),
-            @ApiResponse(responseCode = "401", description = "Unauthorized – Authentication is required")
-    })
+    /**
+     * Retrieves a game by its ID.
+     * Accessible only to authenticated users.
+     *
+     * @param id the ID of the game
+     * @return the game data with HTTP 200 status
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Game> getGame(@PathVariable Long id) {
         return ResponseEntity.ok(gameService.getById(id));
     }
 
-    /*
-    Endpoint to create a new game, accessible only by ADMIN role
-    */
-
+    /**
+     * Creates a new game.
+     * Accessible only to users with ADMIN role.
+     *
+     * @param dto the game data
+     * @return the created game with HTTP 201 status
+     */
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Game> createGame(@RequestBody Game game) {
-        Game savedGame = gameService.save(game);
+    public ResponseEntity<Game> createGame(@Valid @RequestBody GameDTO dto) {
+        Game savedGame = gameService.save(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedGame);
     }
 
-    /*
-    Endpoint to create a new game, accessible only by ADMIN role
-    */
-
+    /**
+     * Updates an existing game by ID.
+     * Accessible only to users with ADMIN role.
+     *
+     * @param id  the ID of the game to update
+     * @param dto the updated game data
+     * @return the updated game with HTTP 200 status
+     */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    @Transactional
-    public ResponseEntity<Game> updateGame(@PathVariable Long id, @RequestBody Game game) {
-        Game existingGame = gameService.getById(id);
-        existingGame.setTitle(game.getTitle());
-        existingGame.setDescription(game.getDescription());
-        existingGame.setReleaseDate(game.getReleaseDate());
-        existingGame.setDeveloper(game.getDeveloper());
-        existingGame.setPlatforms(game.getPlatforms());
-        existingGame.setGenres(game.getGenres());
-        Game updatedGame = gameService.save(existingGame);
+    public ResponseEntity<Game> updateGame(@PathVariable Long id, @Valid @RequestBody GameDTO dto) {
+        Game updatedGame = gameService.updateById(id, dto);
         return ResponseEntity.ok(updatedGame);
     }
 
-    /*
-    Endpoint to delete a game by ID, accessible only by ADMIN role
-    */
-
+    /**
+     * Deletes a game by its ID.
+     * Accessible only to users with ADMIN role.
+     *
+     * @param id the ID of the game to delete
+     * @return HTTP 204 No Content status
+     */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteGame(@PathVariable Long id) {

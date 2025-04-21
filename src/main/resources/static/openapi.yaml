@@ -1,0 +1,739 @@
+openapi: 3.0.1
+info:
+  title: Game Library API
+  version: "2.0"
+  description: |
+    This REST API manages a video game library. Unauthenticated users can access only the /register 
+    and /login endpoints. Authentication is handled using HTTP Basic Auth in a stateless manner. Authenticated 
+    users can view the list of games, developers, genres, and platforms, as well as get detailed information for each. 
+    Users can also view their profile, change their password, or delete their account. Administrators have full access 
+    to all entities (games, developers, genres, platforms) and user management. They can create, update, and delete any 
+    resource. All data is transferred via DTOs with validation, and appropriate role-based access control is enforced.
+    
+    To test protected endpoints, click "Authorize" and enter the following credentials:
+
+    — admin (for both login and password)
+    — user (for both login and password)
+  contact:
+    name: Dmitri Kramar
+    email: dmitri.kramar@outlook.com
+    url: https://dmitri-kramar.github.io/
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+
+  schemas:
+    UserRequestDTO:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          minLength: 2
+          maxLength: 25
+          example: newUser
+        password:
+          type: string
+          minLength: 4
+          maxLength: 25
+          writeOnly: true
+          example: password
+
+    UserResponseDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        username:
+          type: string
+          example: newUser
+        role:
+          type: string
+          enum: [ USER, ADMIN ]
+          example: USER
+
+    PasswordDTO:
+      type: object
+      required:
+        - oldPassword
+        - newPassword
+      properties:
+        oldPassword:
+          type: string
+          writeOnly: true
+          example: oldPassword
+        newPassword:
+          type: string
+          minLength: 4
+          maxLength: 25
+          writeOnly: true
+          example: newPassword
+
+    DeveloperDTO:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 25
+          example: SomeDeveloper
+
+    GameDTO:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          maxLength: 40
+          example: SomeGame
+        releaseDate:
+          type: string
+          format: date
+          nullable: true
+        description:
+          type: string
+          maxLength: 250
+          nullable: true
+        developerId:
+          type: integer
+          nullable: true
+        platformIds:
+          type: array
+          items:
+            type: integer
+          nullable: true
+        genresIds:
+          type: array
+          items:
+            type: integer
+          nullable: true
+
+    PlatformDTO:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 25
+          example: SomePlatform
+
+    GenreDTO:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 25
+          example: SomeGenre
+
+security:
+  - basicAuth: [ ]
+
+paths:
+  /register:
+    post:
+      summary: Register an account (available only for UNAUTHENTICATED users)
+      description: Registers a new user and returns the details.
+      tags: [ Authorization ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequestDTO'
+            examples:
+              registerRequest:
+                summary: Valid registration request
+                value:
+                  username: newUser
+                  password: password
+      responses:
+        '201':
+          description: User registered successfully
+        '400':
+          description: Invalid request data
+        '403':
+          description: Forbidden — Access denied
+
+  /login:
+    post:
+      summary: Log in (available only for UNAUTHENTICATED users)
+      description: Authenticates the user and returns a success message.
+      tags: [ Authorization ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequestDTO'
+            examples:
+              loginRequest:
+                summary: Valid login request
+                value:
+                  username: admin
+                  password: admin
+      responses:
+        '200':
+          description: User logged in successfully
+        '400':
+          description: Invalid request data
+        '401':
+          description: Invalid credentials
+        '403':
+          description: Forbidden — Access denied
+
+  /developers:
+    get:
+      summary: Get all developers (available only for AUTHENTICATED users)
+      description: Returns a list of all developers or an empty list if no developers are found.
+      tags: [Developers]
+      responses:
+        '200':
+          description: List of developers retrieved successfully
+        '401':
+          description: Unauthorized – Authentication is required
+
+    post:
+      summary: Add a new developer (available only for ADMIN)
+      description: Adds a new developer to the database.
+      tags: [Developers]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeveloperDTO'
+            examples:
+              validDeveloper:
+                summary: Valid developer
+                value:
+                  name: Electronic Arts
+      responses:
+        '201':
+          description: Developer added successfully
+        '400':
+          description: Invalid request data
+        '401':
+          description: Unauthorized – Authentication is required
+        '403':
+          description: Forbidden – Access denied
+
+  /developers/{id}:
+    get:
+      summary: Get a developer by ID (available only for AUTHENTICATED users)
+      description: Returns the developer if his ID is present in the database.
+      tags: [Developers]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID of the developer
+      responses:
+        '200':
+          description: Developer retrieved successfully
+        '401':
+          description: Unauthorized – Authentication is required
+        '404':
+          description: Developer with the given ID was not found
+
+    put:
+      summary: Update an existing developer's name (available only for ADMIN)
+      description: Updates the developer's name by ID.
+      tags: [Developers]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID of the developer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeveloperDTO'
+            examples:
+              updateDeveloper:
+                summary: Update developer name
+                value:
+                  name: Square Enix
+      responses:
+        '200':
+          description: Developer's name updated successfully
+        '400':
+          description: Invalid request data
+        '401':
+          description: Unauthorized – Authentication is required
+        '403':
+          description: Forbidden – Access denied
+        '404':
+          description: Developer with the given ID was not found
+
+    delete:
+      summary: Delete an existing developer (available only for ADMIN)
+      description: Deletes the developer by ID.
+      tags: [Developers]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID of the developer
+      responses:
+        '204':
+          description: Developer deleted successfully
+        '401':
+          description: Unauthorized – Authentication is required
+        '403':
+          description: Forbidden – Access denied
+        '404':
+          description: Developer with the given ID was not found
+
+  /games:
+    get:
+      summary: Get all games (available only for AUTHENTICATED users)
+      description: Returns a list of all games or an empty list if no games are found.
+      tags: [ Games ]
+      responses:
+        '200':
+          description: List of games retrieved successfully
+        '401':
+          description: Unauthorized – Authentication is required
+
+    post:
+      summary: Add a new game (available only for ADMIN)
+      description: Adds a new game to the database. All fields must be provided. Use null to clear optional values.
+      tags: [ Games ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameDTO'
+            examples:
+              validGame:
+                summary: Basic valid example
+                value:
+                  title: "The Witcher 3"
+                  releaseDate: "2015-05-19"
+                  description: "An epic RPG game."
+                  developerId: 1
+                  platformIds: [ 1, 2 ]
+                  genresIds: [ 3, 4 ]
+      responses:
+        '201':
+          description: Game added successfully
+        '400':
+          description: Invalid request data
+        '401':
+          description: Unauthorized – Authentication is required
+        '403':
+          description: Forbidden – Access denied
+        '404':
+          description: Object with the given ID was not found
+
+  /games/{id}:
+    get:
+      summary: Get a game by ID (available only for AUTHENTICATED users)
+      description: Returns the game if its ID is present in the database.
+      tags: [ Games ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID of the game
+      responses:
+        '200':
+          description: Game retrieved successfully
+        '401':
+          description: Unauthorized – Authentication is required
+        '404':
+          description: Game with the given ID was not found
+
+    put:
+      summary: Update a game (available only for ADMIN)
+      description: Updates the game with the given ID. All fields must be provided. Use null to remove values.
+      tags: [ Games ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID of the game to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameDTO'
+            examples:
+              updateGame:
+                summary: Example update
+                value:
+                  title: "The Witcher 3: Enhanced Edition"
+                  releaseDate: "2016-06-01"
+                  description: "An epic RPG game."
+                  developerId: 1
+                  platformIds: [ 2 ]
+                  genresIds: [ 4 ]
+      responses:
+        '200':
+          description: Game updated successfully
+        '400':
+          description: Invalid request data
+        '401':
+          description: Unauthorized – Authentication is required
+        '403':
+          description: Forbidden – Access denied
+        '404':
+          description: Game with the given ID was not found
+
+    delete:
+      summary: Delete a game (available only for ADMIN)
+      description: Deletes the game if its ID is present in the database.
+      tags: [ Games ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID of the game to delete
+      responses:
+        '204':
+          description: Game deleted successfully
+        '401':
+          description: Unauthorized – Authentication is required
+        '403':
+          description: Forbidden – Access denied
+        '404':
+          description: Game with the given ID was not found
+
+  /platforms:
+    get:
+      summary: Get all platforms (available only for AUTHENTICATED users)
+      description: Returns a list of all platforms or an empty list if none exist.
+      tags: [ Platforms ]
+      responses:
+        '200':
+          description: List of platforms retrieved successfully
+        '401':
+          description: Unauthorized – Authentication is required
+
+    post:
+      summary: Add a new platform (available only for ADMIN)
+      description: Adds a new platform to the database.
+      tags: [ Platforms ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlatformDTO'
+            examples:
+              validPlatform:
+                summary: Example of a valid platform
+                value:
+                  name: Nintendo Switch
+      responses:
+        '201':
+          description: Platform added successfully
+        '400':
+          description: Invalid request data
+        '401':
+          description: Unauthorized – Authentication is required
+        '403':
+          description: Forbidden – Access denied
+
+  /platforms/{id}:
+    get:
+      summary: Get a platform by ID (available only for AUTHENTICATED users)
+      description: Returns a platform by ID if it exists.
+      tags: [ Platforms ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID of the platform
+      responses:
+        '200':
+          description: Platform retrieved successfully
+        '401':
+          description: Unauthorized – Authentication is required
+        '404':
+          description: Platform with the given ID was not found
+
+    put:
+      summary: Update a platform name (available only for ADMIN)
+      description: Updates the platform's name using the given ID.
+      tags: [ Platforms ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID of the platform
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlatformDTO'
+            examples:
+              updatePlatform:
+                summary: Example update
+                value:
+                  name: Wii
+      responses:
+        '200':
+          description: Platform updated successfully
+        '400':
+          description: Invalid request data
+        '401':
+          description: Unauthorized – Authentication is required
+        '403':
+          description: Forbidden – Access denied
+        '404':
+          description: Platform with the given ID was not found
+
+    delete:
+      summary: Delete a platform (available only for ADMIN)
+      description: Deletes the specified platform by ID.
+      tags: [ Platforms ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID of the platform to delete
+      responses:
+        '204':
+          description: Platform deleted successfully
+        '401':
+          description: Unauthorized – Authentication is required
+        '403':
+          description: Forbidden – Access denied
+        '404':
+          description: Platform with the given ID was not found
+
+  /genres:
+    get:
+      summary: Get all genres (available only for AUTHENTICATED users)
+      description: Returns a list of all genres or an empty list if none exist.
+      tags: [ Genres ]
+      responses:
+        '200':
+          description: List of genres retrieved successfully
+        '401':
+          description: Unauthorized – Authentication is required
+
+    post:
+      summary: Add a new genre (available only for ADMIN)
+      description: Adds a new genre to the database.
+      tags: [ Genres ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenreDTO'
+            examples:
+              validGenre:
+                summary: Example genre
+                value:
+                  name: Survival
+      responses:
+        '201':
+          description: Genre added successfully
+        '400':
+          description: Invalid request data
+        '401':
+          description: Unauthorized – Authentication is required
+        '403':
+          description: Forbidden – Access denied
+
+  /genres/{id}:
+    get:
+      summary: Get a genre by ID (available only for AUTHENTICATED users)
+      description: Returns a genre by ID if it exists.
+      tags: [ Genres ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID of the genre
+      responses:
+        '200':
+          description: Genre retrieved successfully
+        '401':
+          description: Unauthorized – Authentication is required
+        '404':
+          description: Genre with the given ID was not found
+
+    put:
+      summary: Update a genre name (available only for ADMIN)
+      description: Updates the genre name using the given ID.
+      tags: [ Genres ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID of the genre to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenreDTO'
+            examples:
+              updateGenre:
+                summary: Genre update example
+                value:
+                  name: Puzzle
+      responses:
+        '200':
+          description: Genre updated successfully
+        '400':
+          description: Invalid request data
+        '401':
+          description: Unauthorized – Authentication is required
+        '403':
+          description: Forbidden – Access denied
+        '404':
+          description: Genre with the given ID was not found
+
+    delete:
+      summary: Delete a genre (available only for ADMIN)
+      description: Deletes the specified genre by ID.
+      tags: [ Genres ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID of the genre to delete
+      responses:
+        '204':
+          description: Genre deleted successfully
+        '401':
+          description: Unauthorized – Authentication is required
+        '403':
+          description: Forbidden – Access denied
+        '404':
+          description: Genre with the given ID was not found
+
+  /users:
+    get:
+      summary: Get all users (available only for ADMIN)
+      description: Retrieves a list of all users.
+      tags: [ Users ]
+      responses:
+        '200':
+          description: Successfully retrieved the list of users
+        '401':
+          description: Unauthorized – Authentication is required
+        '403':
+          description: Forbidden – ADMIN role is required
+
+  /users/{id}:
+    get:
+      summary: Get a user by ID (available only for AUTHENTICATED users)
+      description: Returns a user profile by ID.
+      tags: [ Users ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID of the user to retrieve
+      responses:
+        '200':
+          description: User retrieved successfully
+        '401':
+          description: Unauthorized – Authentication is required
+        '404':
+          description: User with the given ID was not found
+
+    put:
+      summary: Update user password (available only for the user himself)
+      description: Updates the user's password. Requires the correct old password.
+      tags: [ Users ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID of the user whose password will be changed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordDTO'
+            examples:
+              updatePassword:
+                summary: Example password update
+                value:
+                  oldPassword: "user"
+                  newPassword: "user123"
+      responses:
+        '200':
+          description: Password updated successfully
+        '400':
+          description: Invalid input or incorrect old password
+        '401':
+          description: Unauthorized – Authentication is required
+        '403':
+          description: Forbidden – Only the user himself or admin can update
+
+    delete:
+      summary: Delete a user (available only for ADMIN or the user himself)
+      description: Deletes the user with the given ID.
+      tags: [ Users ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID of the user to delete
+      responses:
+        '204':
+          description: User deleted successfully
+        '401':
+          description: Unauthorized – Authentication is required
+        '403':
+          description: Forbidden – Only the user himself or admin can delete
+        '404':
+          description: User with the given ID was not found

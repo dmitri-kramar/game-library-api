@@ -10,10 +10,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -31,81 +33,88 @@ class DeveloperServiceUnitTests {
 
     @BeforeEach
     void setUp() {
-        // Creating a test developer object before each test
-        testDeveloper = new Developer(1L, "Test Developer", null);
+        testDeveloper = new Developer(1L, "Test Developer", new HashSet<>());
         testDeveloperDTO = new DeveloperDTO("Test Developer");
     }
 
     @Test
     void getAll_ShouldReturnDeveloperList() {
-        // Mocking repository response
         when(developerRepository.findAllWithRelations()).thenReturn(List.of(testDeveloper));
-        List<Developer> developers = developerService.getAll();
-        assertEquals(1, developers.size());
-        assertEquals("Test Developer", developers.get(0).getName());
 
-        // Ensuring repository method is called once
-        verify(developerRepository, times(1)).findAllWithRelations();
+        List<Developer> developers = developerService.getAll();
+
+        assertThat(developers).hasSize(1);
+        assertThat(developers.get(0).getName()).isEqualTo("Test Developer");
+        verify(developerRepository).findAllWithRelations();
     }
 
     @Test
     void getById_ShouldReturnDeveloper_WhenExists() {
-        // Mocking a successful find operation
         when(developerRepository.findByIdWithRelations(1L)).thenReturn(Optional.of(testDeveloper));
+
         Developer developer = developerService.getById(1L);
-        assertEquals("Test Developer", developer.getName());
-        verify(developerRepository, times(1)).findByIdWithRelations(1L);
+
+        assertThat(developer.getName()).isEqualTo("Test Developer");
+        verify(developerRepository).findByIdWithRelations(1L);
     }
 
     @Test
     void getById_ShouldThrowException_WhenNotFound() {
-        // Mocking an empty result
         when(developerRepository.findByIdWithRelations(1L)).thenReturn(Optional.empty());
 
-        // Expecting an exception when the developer is not found
         assertThrows(NoSuchElementException.class, () -> developerService.getById(1L));
     }
 
     @Test
     void save_ShouldReturnSavedDeveloper() {
-        // Mocking repository save behavior
         when(developerRepository.save(any(Developer.class))).thenReturn(testDeveloper);
+
         Developer savedDeveloper = developerService.save(testDeveloperDTO);
-        assertNotNull(savedDeveloper);
-        assertEquals("Test Developer", savedDeveloper.getName());
-        verify(developerRepository, times(1)).save(any(Developer.class));
+
+        assertThat(savedDeveloper).isNotNull();
+        assertThat(savedDeveloper.getName()).isEqualTo("Test Developer");
+        verify(developerRepository).save(any(Developer.class));
     }
 
     @Test
-    void updateName_ShouldReturnDeveloperWithUpdatedName() {
+    void updateNameById_ShouldReturnUpdatedDeveloper() {
         when(developerRepository.findByIdWithRelations(1L)).thenReturn(Optional.of(testDeveloper));
         when(developerRepository.save(any(Developer.class))).thenReturn(testDeveloper);
 
-        DeveloperDTO developerDTO = new DeveloperDTO("Updated Developer");
-        Developer updatedDeveloper = developerService.updateName(1L, developerDTO);
+        DeveloperDTO updated = new DeveloperDTO("Updated Developer");
+        Developer updatedDeveloper = developerService.updateNameById(1L, updated);
 
-        assertEquals("Updated Developer", updatedDeveloper.getName());
-        verify(developerRepository, times(1)).findByIdWithRelations(1L);
-        verify(developerRepository, times(1)).save(testDeveloper);
+        assertThat(updatedDeveloper.getName()).isEqualTo("Updated Developer");
+        verify(developerRepository).findByIdWithRelations(1L);
+        verify(developerRepository).save(testDeveloper);
     }
+
+    @Test
+    void updateNameById_ShouldThrowException_WhenNameAlreadyExists() {
+        DeveloperDTO duplicateNameDTO = new DeveloperDTO("Existing Developer");
+
+        when(developerRepository.findByIdWithRelations(1L)).thenReturn(Optional.of(testDeveloper));
+        when(developerRepository.existsByName("Existing Developer")).thenReturn(true);
+
+        assertThrows(IllegalArgumentException.class, () ->
+                developerService.updateNameById(1L, duplicateNameDTO));
+    }
+
 
     @Test
     void deleteById_ShouldDeleteDeveloper_WhenExists() {
-        // Mocking a successful find operation
         when(developerRepository.findByIdWithRelations(1L)).thenReturn(Optional.of(testDeveloper));
-
-        // Ensuring delete method doesn't throw exceptions
         doNothing().when(developerRepository).delete(testDeveloper);
+
         developerService.deleteById(1L);
-        verify(developerRepository, times(1)).delete(testDeveloper);
+
+        verify(developerRepository).delete(testDeveloper);
     }
 
     @Test
     void deleteById_ShouldThrowException_WhenNotFound() {
-        // Mocking an empty result
         when(developerRepository.findByIdWithRelations(1L)).thenReturn(Optional.empty());
 
-        // Expecting an exception when trying to delete a non-existent developer
         assertThrows(NoSuchElementException.class, () -> developerService.deleteById(1L));
     }
 }

@@ -10,18 +10,36 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-// Repository interface for performing CRUD operations on Genre entities.
-
+/**
+ * Repository interface for managing {@link Genre} entities.
+ * Provides methods to retrieve genres with their related games.
+ */
 @Repository
 public interface GenreRepository extends JpaRepository<Genre, Long> {
 
-    // Finds a Genre by its id and fetches its related 'games' attribute using an entity graph.
-    // This ensures that the 'games' collection is loaded along with the Genre entity.
+    /**
+     * Retrieves a genre by its ID and eagerly loads its associated games using an entity graph.
+     *
+     * @param id the ID of the genre
+     * @return an {@link Optional} containing the genre with its related games, if found
+     */
     @EntityGraph(attributePaths = {"games"})
     @Query("SELECT g FROM Genre g WHERE g.id = :id")
     Optional<Genre> findByIdWithRelations(@Param("id") Long id);
 
-    // Finds all Genres and fetches their related 'games' collection eagerly using a LEFT JOIN FETCH.
+    /**
+     * Retrieves all genres and eagerly fetches their related games using LEFT JOIN FETCH.
+     *
+     * @return a list of genres with their related games
+     */
     @Query("SELECT g FROM Genre g LEFT JOIN FETCH g.games")
     List<Genre> findAllWithRelations();
+
+    /**
+     * Checks if a genre with the given name already exists.
+     *
+     * @param name the name to check
+     * @return true if a genre with the specified name exists, false otherwise
+     */
+    boolean existsByName(String name);
 }

@@ -4,13 +4,13 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 
-// Main class for starting the Game Library application.
-
+/**
+ * Main class that launches the Game Library application.
+ */
 @SpringBootApplication
 @ServletComponentScan
 public class GameLibraryApplication {
 
-	// Starts the application.
 	public static void main(String[] args) {
 		SpringApplication.run(GameLibraryApplication.class, args);
 	}

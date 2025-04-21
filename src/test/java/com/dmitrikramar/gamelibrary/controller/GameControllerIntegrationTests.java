@@ -1,5 +1,6 @@
 package com.dmitrikramar.gamelibrary.controller;
 
+import com.dmitrikramar.gamelibrary.dto.GameDTO;
 import com.dmitrikramar.gamelibrary.entity.Developer;
 import com.dmitrikramar.gamelibrary.entity.Game;
 import com.dmitrikramar.gamelibrary.entity.Genre;
@@ -54,18 +55,20 @@ class GameControllerIntegrationTests {
     private GenreRepository genreRepository;
 
     private Game testGame;
+    private Developer testDeveloper;
+    private Platform testPlatform;
+    private Genre testGenre;
 
     @BeforeEach
     void setUp() {
-        Developer testDeveloper = new Developer("TestDeveloper");
-        Platform testPlatform = new Platform("TestPlatform", null);
-        Genre testGenre = new Genre("TestGenre", null);
+        testDeveloper = new Developer("Test Developer");
+        testPlatform = new Platform("Test Platform");
+        testGenre = new Genre("Test Genre");
 
         developerRepository.save(testDeveloper);
         platformRepository.save(testPlatform);
         genreRepository.save(testGenre);
 
-        // Creates a test game and saves it to the repository
         testGame = new Game("Test Game", LocalDate.parse("2000-01-01"), "Description",
                 testDeveloper, new HashSet<>(Set.of(testPlatform)), new HashSet<>(Set.of(testGenre)));
 
@@ -75,7 +78,6 @@ class GameControllerIntegrationTests {
     @Test
     @WithMockUser
     void getAllGames_ShouldReturnListOfGames() throws Exception {
-        // Sends a GET request to fetch all games and expects a list with at least one game
         mockMvc.perform(get("/games"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))))
@@ -85,8 +87,6 @@ class GameControllerIntegrationTests {
 
     @Test
     void getAllGames_ShouldReturnUnauthorized_WhenUserNotAuthenticated() throws Exception {
-        // Sends a GET request to fetch all games but expects unauthorized
-        // status (HTTP 401) when no authentication is provided
         mockMvc.perform(get("/games"))
                 .andExpect(status().isUnauthorized());
     }
@@ -94,7 +94,6 @@ class GameControllerIntegrationTests {
     @Test
     @WithMockUser
     void getGame_ShouldReturnGame_WhenGameExists() throws Exception {
-        // Sends a GET request to fetch a specific game and expects the game's details to match
         mockMvc.perform(get("/games/{id}", testGame.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Test Game"));
@@ -102,8 +101,6 @@ class GameControllerIntegrationTests {
 
     @Test
     void getGame_ShouldReturnUnauthorized_WhenUserNotAuthenticated() throws Exception {
-        // Sends a GET request for a specific game but expects unauthorized
-        // status (HTTP 401) when no authentication is provided
         mockMvc.perform(get("/games/{id}", testGame.getId()))
                 .andExpect(status().isUnauthorized());
     }
@@ -111,11 +108,9 @@ class GameControllerIntegrationTests {
     @Test
     @WithMockUser(roles = "ADMIN")
     void createGame_ShouldReturnCreatedGame_WhenAdmin() throws Exception {
-        Game newGame = new Game("New Game", LocalDate.parse("2000-01-01"), "Description",
-                testGame.getDeveloper(), testGame.getPlatforms(), testGame.getGenres());
+        GameDTO newGame = new GameDTO("New Game", LocalDate.parse("2000-01-01"), "Description", testDeveloper.getId(),
+                new HashSet<>(Set.of(testPlatform.getId())), new HashSet<>(Set.of(testGenre.getId())));
 
-        // Sends a POST request to create a new game and expects it to return
-        // a created response with the correct details
         mockMvc.perform(post("/games")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newGame)))
@@ -126,12 +121,12 @@ class GameControllerIntegrationTests {
     @Test
     @WithMockUser(roles = "ADMIN")
     void updateGame_ShouldReturnUpdatedGame_WhenAdmin() throws Exception {
-        testGame.setTitle("Updated Title");
+        GameDTO updatedGame = new GameDTO("Updated Title", LocalDate.parse("2000-01-01"), "Description", testDeveloper.getId(),
+                new HashSet<>(Set.of(testPlatform.getId())), new HashSet<>(Set.of(testGenre.getId())));
 
-        // Updates the test game's title and sends a PUT request to updateName it in the database
         mockMvc.perform(put("/games/{id}", testGame.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(testGame)))
+                        .content(objectMapper.writeValueAsString(updatedGame)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Updated Title"));
     }
@@ -139,11 +134,9 @@ class GameControllerIntegrationTests {
     @Test
     @WithMockUser(roles = "ADMIN")
     void deleteGame_ShouldReturnNoContent_WhenAdmin() throws Exception {
-        // Sends a DELETE request to remove the test game and expects no content in the response
         mockMvc.perform(delete("/games/{id}", testGame.getId()))
                 .andExpect(status().isNoContent());
 
-        // Verifies that the game was actually deleted from the repository
         assertFalse(gameRepository.existsById(testGame.getId()));
     }
 }

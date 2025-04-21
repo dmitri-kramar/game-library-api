@@ -1,5 +1,6 @@
 package com.dmitrikramar.gamelibrary.service;
 
+import com.dmitrikramar.gamelibrary.dto.PlatformDTO;
 import com.dmitrikramar.gamelibrary.entity.Platform;
 import com.dmitrikramar.gamelibrary.repository.PlatformRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @Transactional
@@ -26,33 +28,20 @@ class PlatformServiceIntegrationTests {
 
     @BeforeEach
     void setUp() {
-        // Creates and saves a test platform before each test
-        testPlatform = new Platform("TestPlatform", null);
+        testPlatform = new Platform("Test Platform");
         platformRepository.save(testPlatform);
     }
 
     @Test
-    void save() {
-        // Verifies that a new platform is saved correctly with a generated ID
-        Platform newPlatform = new Platform("NewPlatform", null);
-        Platform savedPlatform = platformService.save(newPlatform);
-
-        assertThat(savedPlatform).isNotNull();
-        assertThat(savedPlatform.getId()).isNotNull();
-        assertThat(savedPlatform.getName()).isEqualTo("NewPlatform");
-    }
-
-    @Test
     void getAll() {
-        // Verifies that all platforms are retrieved, including the test platform
         List<Platform> platforms = platformService.getAll();
+
         assertThat(platforms).isNotEmpty();
         assertThat(platforms).contains(testPlatform);
     }
 
     @Test
     void getById() {
-        // Verifies that the platform is retrieved correctly by ID
         Platform foundPlatform = platformService.getById(testPlatform.getId());
 
         assertThat(foundPlatform).isNotNull();
@@ -60,9 +49,39 @@ class PlatformServiceIntegrationTests {
     }
 
     @Test
+    void save() {
+        PlatformDTO newPlatform = new PlatformDTO("New Platform");
+        Platform savedPlatform = platformService.save(newPlatform);
+
+        assertThat(savedPlatform).isNotNull();
+        assertThat(savedPlatform.getId()).isNotNull();
+        assertThat(savedPlatform.getName()).isEqualTo("New Platform");
+    }
+
+    @Test
+    void updateNameById() {
+        PlatformDTO updated = new PlatformDTO("Updated Platform");
+        Platform updatedPlatform = platformService.updateNameById(testPlatform.getId(), updated);
+
+        assertThat(updatedPlatform).isNotNull();
+        assertThat(updatedPlatform.getName()).isEqualTo("Updated Platform");
+    }
+
+    @Test
+    void updateNameById_ShouldThrowException_WhenNameAlreadyExists() {
+        Platform existing = new Platform("Existing Platform");
+        platformRepository.save(existing);
+
+        PlatformDTO duplicate = new PlatformDTO("Existing Platform");
+
+        assertThrows(IllegalArgumentException.class,
+                () -> platformService.updateNameById(testPlatform.getId(), duplicate));
+    }
+
+    @Test
     void deleteById() {
-        // Verifies that a platform is deleted correctly and no longer exists in the repository
         platformService.deleteById(testPlatform.getId());
+
         assertThat(platformRepository.findById(testPlatform.getId())).isEmpty();
     }
 }

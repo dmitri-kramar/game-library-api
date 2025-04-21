@@ -1,5 +1,6 @@
 package com.dmitrikramar.gamelibrary.controller;
 
+import com.dmitrikramar.gamelibrary.dto.DeveloperDTO;
 import com.dmitrikramar.gamelibrary.entity.Developer;
 import com.dmitrikramar.gamelibrary.repository.DeveloperRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,26 +39,22 @@ class DeveloperControllerIntegrationTests {
 
     @BeforeEach
     void setUp() {
-        // Initializes the test developer before each test and saves it to the repository
-        testDeveloper = new Developer("TestDeveloper");
+        testDeveloper = new Developer("Test Developer");
         developerRepository.save(testDeveloper);
     }
 
     @Test
     @WithMockUser
     void getAllDevelopers_ShouldReturnListOfDevelopers() throws Exception {
-        // Sends a GET request to fetch all developers and expects the list to contain at least one developer
         mockMvc.perform(get("/developers"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))))
                 .andExpect(jsonPath("$[?(@.id == " + testDeveloper.getId() + ")]").exists())
-                .andExpect(jsonPath("$[?(@.id == " + testDeveloper.getId() + ")].name").value("TestDeveloper"));
+                .andExpect(jsonPath("$[?(@.id == " + testDeveloper.getId() + ")].name").value("Test Developer"));
     }
 
     @Test
     void getAllDevelopers_ShouldReturnUnauthorized_WhenUserNotAuthenticated() throws Exception {
-        // Sends a GET request to fetch all developers but expects unauthorized
-        // status (HTTP 401) when no authentication is provided
         mockMvc.perform(get("/developers"))
                 .andExpect(status().isUnauthorized());
     }
@@ -65,16 +62,13 @@ class DeveloperControllerIntegrationTests {
     @Test
     @WithMockUser
     void getDeveloper_ShouldReturnDeveloper_WhenDeveloperExists() throws Exception {
-        // Sends a GET request to fetch a specific developer and expects the developer's details to match
         mockMvc.perform(get("/developers/{id}", testDeveloper.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("TestDeveloper"));
+                .andExpect(jsonPath("$.name").value("Test Developer"));
     }
 
     @Test
     void getDeveloper_ShouldReturnUnauthorized_WhenUserNotAuthenticated() throws Exception {
-        // Sends a GET request for a specific developer but expects unauthorized
-        // status (HTTP 401) when no authentication is provided
         mockMvc.perform(get("/developers/{id}", testDeveloper.getId()))
                 .andExpect(status().isUnauthorized());
     }
@@ -82,38 +76,33 @@ class DeveloperControllerIntegrationTests {
     @Test
     @WithMockUser(roles = "ADMIN")
     void createDeveloper_ShouldReturnCreatedDeveloper_WhenAdmin() throws Exception {
-        Developer newDeveloper = new Developer("NewDeveloper");
+        DeveloperDTO newDeveloper = new DeveloperDTO("New Developer");
 
-        // Sends a POST request to create a new developer and expects
-        // it to return a created response with the correct details
         mockMvc.perform(post("/developers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newDeveloper)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value("NewDeveloper"));
+                .andExpect(jsonPath("$.name").value("New Developer"));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void updateDeveloperName_ShouldReturnDeveloperWithUpdatedName_WhenAdmin() throws Exception {
-        testDeveloper.setName("UpdatedDeveloper");
+        DeveloperDTO updatedDeveloper = new DeveloperDTO("Updated Developer");
 
-        // Updates the test developer's name and sends a PUT request to update it in the database
         mockMvc.perform(put("/developers/{id}", testDeveloper.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(testDeveloper)))
+                        .content(objectMapper.writeValueAsString(updatedDeveloper)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("UpdatedDeveloper"));
+                .andExpect(jsonPath("$.name").value("Updated Developer"));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void deleteDeveloper_ShouldReturnNoContent_WhenAdmin() throws Exception {
-        // Sends a DELETE request to remove the test developer and expects no content in the response
         mockMvc.perform(delete("/developers/{id}", testDeveloper.getId()))
                 .andExpect(status().isNoContent());
 
-        // Verifies that the developer was actually deleted from the repository
         assertFalse(developerRepository.existsById(testDeveloper.getId()));
     }
 }

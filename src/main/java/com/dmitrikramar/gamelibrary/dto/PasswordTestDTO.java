@@ -3,10 +3,14 @@ package com.dmitrikramar.gamelibrary.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-// Data Transfer Object (DTO) for password change, with validation for the new password.
-// The old password can be any string, with no specific validation.
-// The new password should be non-blank, with a minimum length of 4 and a maximum of 25 characters.
-// This DTO is meant to be used only during testing.
-
-public record PasswordTestDTO(String oldPassword, @NotBlank @Size(min = 4, max = 25) String newPassword)
-{}
+/**
+ * DTO used for testing password changes. The old password has no validation;
+ * the new password must be 4–25 characters and non-blank.
+ *
+ * @param oldPassword the current password (no validation)
+ * @param newPassword the new password (required, 4–25 characters)
+ */
+public record PasswordTestDTO(
+        String oldPassword,
+        @NotBlank @Size(min = 4, max = 25) String newPassword
+) {}

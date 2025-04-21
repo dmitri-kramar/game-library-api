@@ -1,5 +1,6 @@
 package com.dmitrikramar.gamelibrary.service;
 
+import com.dmitrikramar.gamelibrary.dto.GenreDTO;
 import com.dmitrikramar.gamelibrary.entity.Genre;
 import com.dmitrikramar.gamelibrary.repository.GenreRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @Transactional
@@ -26,33 +28,20 @@ class GenreServiceIntegrationTests {
 
     @BeforeEach
     void setUp() {
-        // Creates and saves a test genre before each test
-        testGenre = new Genre("TestGenre", null);
+        testGenre = new Genre("Test Genre");
         genreRepository.save(testGenre);
     }
 
     @Test
-    void save() {
-        // Verifies that a new genre is saved correctly with a generated ID
-        Genre newGenre = new Genre("NewGenre", null);
-        Genre savedGenre = genreService.save(newGenre);
-
-        assertThat(savedGenre).isNotNull();
-        assertThat(savedGenre.getId()).isNotNull();
-        assertThat(savedGenre.getName()).isEqualTo("NewGenre");
-    }
-
-    @Test
     void getAll() {
-        // Verifies that all genres are retrieved, including the test genre
         List<Genre> genres = genreService.getAll();
+
         assertThat(genres).isNotEmpty();
         assertThat(genres).contains(testGenre);
     }
 
     @Test
     void getById() {
-        // Verifies that the genre is retrieved correctly by ID
         Genre foundGenre = genreService.getById(testGenre.getId());
 
         assertThat(foundGenre).isNotNull();
@@ -60,9 +49,39 @@ class GenreServiceIntegrationTests {
     }
 
     @Test
+    void save() {
+        GenreDTO newGenre = new GenreDTO("New Genre");
+        Genre savedGenre = genreService.save(newGenre);
+
+        assertThat(savedGenre).isNotNull();
+        assertThat(savedGenre.getId()).isNotNull();
+        assertThat(savedGenre.getName()).isEqualTo("New Genre");
+    }
+
+    @Test
+    void updateNameById() {
+        GenreDTO updated = new GenreDTO("Updated Genre");
+        Genre updatedGenre = genreService.updateNameById(testGenre.getId(), updated);
+
+        assertThat(updatedGenre).isNotNull();
+        assertThat(updatedGenre.getName()).isEqualTo("Updated Genre");
+    }
+
+    @Test
+    void updateNameById_ShouldThrowException_WhenNameAlreadyExists() {
+        Genre existing = new Genre("Existing Genre");
+        genreRepository.save(existing);
+
+        GenreDTO duplicate = new GenreDTO("Existing Genre");
+
+        assertThrows(IllegalArgumentException.class,
+                () -> genreService.updateNameById(testGenre.getId(), duplicate));
+    }
+
+    @Test
     void deleteById() {
-        // Verifies that a genre is deleted correctly and no longer exists in the repository
         genreService.deleteById(testGenre.getId());
+
         assertThat(genreRepository.findById(testGenre.getId())).isEmpty();
     }
 }

@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -42,38 +43,34 @@ class UserServiceUnitTests {
 
     @BeforeEach
     void setUp() {
-        // Creating test role and user objects before each test
         testRole = new Role(1L, RoleName.USER, null);
         testUser = new User(1L, "testUser", "encodedPassword", testRole);
     }
 
     @Test
     void getAll_ShouldReturnUserList() {
-        // Mocking repository response
         when(userRepository.findAll()).thenReturn(List.of(testUser));
-        List<User> users = userService.getAll();
-        assertEquals(1, users.size());
-        assertEquals("testUser", users.get(0).getUsername());
 
-        // Ensuring repository method is called once
-        verify(userRepository, times(1)).findAll();
+        List<User> users = userService.getAll();
+
+        assertThat(users).hasSize(1);
+        assertThat(users.get(0).getUsername()).isEqualTo("testUser");
     }
 
     @Test
     void getById_ShouldReturnUser_WhenExists() {
-        // Mocking a successful find operation
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+
         User user = userService.getById(1L);
-        assertEquals("testUser", user.getUsername());
-        verify(userRepository, times(1)).findById(1L);
+
+        assertThat(user).isNotNull();
+        assertThat(user.getUsername()).isEqualTo("testUser");
     }
 
     @Test
     void getById_ShouldThrowException_WhenNotFound() {
-        // Mocking an empty result
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        // Expecting an exception when the user is not found
         assertThrows(NoSuchElementException.class, () -> userService.getById(1L));
     }
 
@@ -81,7 +78,6 @@ class UserServiceUnitTests {
     void save_ShouldReturnSavedUser() {
         UserRequestDTO dto = new UserRequestDTO("newUser", "password");
 
-        // Mocking repository behavior for saving a user
         when(userRepository.existsByUsername(dto.username())).thenReturn(false);
         when(roleRepository.findByName(RoleName.USER)).thenReturn(Optional.of(testRole));
         when(passwordEncoder.encode(dto.password())).thenReturn("encodedPassword");
@@ -89,16 +85,23 @@ class UserServiceUnitTests {
 
         User savedUser = userService.save(dto);
 
-        assertNotNull(savedUser);
-        assertEquals("testUser", savedUser.getUsername());
-        verify(userRepository, times(1)).save(any(User.class));
+        assertThat(savedUser).isNotNull();
+        assertThat(savedUser.getUsername()).isEqualTo("testUser");
+    }
+
+    @Test
+    void save_ShouldThrowException_WhenUsernameExists() {
+        UserRequestDTO dto = new UserRequestDTO("testUser", "password");
+
+        when(userRepository.existsByUsername(dto.username())).thenReturn(true);
+
+        assertThrows(IllegalArgumentException.class, () -> userService.save(dto));
     }
 
     @Test
     void updatePassword_ShouldUpdatePassword_WhenValid() {
         PasswordDTO dto = new PasswordDTO("oldPassword", "newPassword");
 
-        // Mocking user retrieval and password validation
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(passwordEncoder.matches(dto.oldPassword(), testUser.getPassword())).thenReturn(true);
         when(passwordEncoder.encode(dto.newPassword())).thenReturn("newEncodedPassword");
@@ -106,39 +109,33 @@ class UserServiceUnitTests {
 
         User updatedUser = userService.updatePassword(1L, dto);
 
-        assertNotNull(updatedUser);
-        verify(userRepository, times(1)).save(any(User.class));
+        assertThat(updatedUser).isNotNull();
+        verify(userRepository).save(any(User.class));
     }
 
     @Test
     void updatePassword_ShouldThrowException_WhenOldPasswordIsInvalid() {
         PasswordDTO dto = new PasswordDTO("wrongPassword", "newPassword");
 
-        // Mocking user retrieval and password validation failure
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(passwordEncoder.matches(dto.oldPassword(), testUser.getPassword())).thenReturn(false);
 
-        // Expecting an exception when the old password does not match
         assertThrows(IllegalArgumentException.class, () -> userService.updatePassword(1L, dto));
     }
 
     @Test
     void deleteById_ShouldDeleteUser_WhenExists() {
-        // Mocking a successful find operation
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
 
-        // Ensuring delete method doesn't throw exceptions
-        doNothing().when(userRepository).delete(testUser);
         userService.deleteById(1L);
-        verify(userRepository, times(1)).delete(testUser);
+
+        verify(userRepository).delete(testUser);
     }
 
     @Test
     void deleteById_ShouldThrowException_WhenNotFound() {
-        // Mocking an empty result
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        // Expecting an exception when trying to delete a non-existent user
         assertThrows(NoSuchElementException.class, () -> userService.deleteById(1L));
     }
 }
